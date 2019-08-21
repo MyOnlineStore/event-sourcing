@@ -1,0 +1,18 @@
+language: php
+
+php:
+    - '7.2'
+    - '7.3'
+
+before_script:
+    - composer self-update
+    - composer install --prefer-source
+    - composer require php-coveralls/php-coveralls
+
+script:
+    - vendor/bin/phpcs
+    - vendor/bin/psalm
+    - vendor/bin/phpunit --coverage-text --coverage-clover clover.xml
+
+after_success:
+    - vendor/bin/coveralls
