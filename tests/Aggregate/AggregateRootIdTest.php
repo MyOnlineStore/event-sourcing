@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace MyOnlineStore\EventSourcing\Tests\Aggregate;
 
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
-use MyOnlineStore\EventSourcing\Event\EventId;
 use MyOnlineStore\EventSourcing\Exception\AssertionFailed;
 use PHPUnit\Framework\TestCase;
 
