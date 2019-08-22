@@ -1,7 +1,10 @@
 language: php
 
+cache:
+    directories:
+        - $HOME/.composer/cache
+
 php:
-    - '7.2'
     - '7.3'
 
 before_script:
@@ -12,7 +15,7 @@ before_script:
 script:
     - vendor/bin/phpcs
     - vendor/bin/psalm
-    - vendor/bin/phpunit --coverage-text --coverage-clover clover.xml
+    - vendor/bin/phpunit --coverage-clover clover.xml
 
 after_success:
-    - vendor/bin/coveralls
+    - vendor/bin/php-coveralls -v
