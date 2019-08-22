@@ -57,6 +57,7 @@ final class AggregateRootTest extends TestCase
         self::assertSame(1, $this->aggregateRoot->getVersion());
         self::assertSame('bar', $this->aggregateRoot->foo);
         self::assertNotEmpty($this->aggregateRoot->popRecordedEvents());
+        self::assertEmpty($this->aggregateRoot->popRecordedEvents());
     }
 
     public function testReconstituteFromHistory(): void

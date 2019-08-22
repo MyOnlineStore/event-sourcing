@@ -51,7 +51,7 @@ class BaseEvent implements ArraySerializable
         $event = new static($data['payload'], $data['metadata']);
         $event->id = EventId::fromString($data['event_id']);
         $event->createdAt = \DateTimeImmutable::createFromFormat(\DATE_RFC3339_EXTENDED, $data['created_at']);
-        $event->version = $data['version'];
+        $event->version = (int) $data['version'];
 
         return $event;
     }

@@ -35,6 +35,7 @@ final class DBALEventRepositoryTest extends TestCase
     {
         $streamName = 'stream';
         $aggregateRootId = $this->createMock(AggregateRootId::class);
+        $aggregateRootId->method('__toString')->willReturn('agg_id');
         $events = [
             $event1 = $this->createMock(Event::class),
             $event2 = $this->createMock(Event::class),
@@ -44,18 +45,18 @@ final class DBALEventRepositoryTest extends TestCase
             ->method('convertToArray')
             ->willReturnOnConsecutiveCalls(
                 [
-                    'event_id' => 'event1',
-                    'payload' => 'event1',
-                    'metadata' => 'event1',
-                    'created_at' => 'event1',
-                    'version' => 'event1',
+                    'event_id' => 'event1a',
+                    'payload' => 'event1b',
+                    'metadata' => 'event1c',
+                    'created_at' => 'event1d',
+                    'version' => 'event1e',
                 ],
                 [
-                    'event_id' => 'event2',
-                    'payload' => 'event2',
-                    'metadata' => 'event2',
-                    'created_at' => 'event2',
-                    'version' => 'event2',
+                    'event_id' => 'event2a',
+                    'payload' => 'event2b',
+                    'metadata' => 'event2c',
+                    'created_at' => 'event2d',
+                    'version' => 'event2e',
                 ]
             );
 
@@ -66,7 +67,24 @@ final class DBALEventRepositoryTest extends TestCase
             ->willReturn($statement = $this->createMock(Statement::class));
         $statement->expects(self::once())
             ->method('execute')
-            ->with(self::isType('array'));
+            ->with(
+                [
+                    'event1a',
+                    \get_class($event1),
+                    'agg_id',
+                    'event1b',
+                    'event1c',
+                    'event1d',
+                    'event1e',
+                    'event2a',
+                    \get_class($event2),
+                    'agg_id',
+                    'event2b',
+                    'event2c',
+                    'event2d',
+                    'event2e',
+                ]
+            );
         $this->connection->expects(self::once())->method('commit');
 
         $this->repository->appendTo($streamName, $aggregateRootId, $events);

@@ -6,6 +6,8 @@ namespace MyOnlineStore\EventSourcing\Tests\Event;
 use MyOnlineStore\EventSourcing\Event\ArraySerializable;
 use MyOnlineStore\EventSourcing\Event\ArraySerializableEventConverter;
 use MyOnlineStore\EventSourcing\Event\BaseEvent;
+use MyOnlineStore\EventSourcing\Event\Event;
+use MyOnlineStore\EventSourcing\Exception\AssertionFailed;
 use MyOnlineStore\EventSourcing\Service\Encoder;
 use PHPUnit\Framework\TestCase;
 
@@ -46,6 +48,24 @@ final class ArraySerializableEventConverterTest extends TestCase
         self::assertInstanceOf(BaseEvent::class, $this->converter->createFromArray($data));
     }
 
+    public function testCreateFromArrayWithoutEventName(): void
+    {
+        $this->expectException(AssertionFailed::class);
+        $this->converter->createFromArray([]);
+    }
+
+    public function testCreateFromArrayWithNonClassEventName(): void
+    {
+        $this->expectException(AssertionFailed::class);
+        $this->converter->createFromArray(['event_name' => 'foobar']);
+    }
+
+    public function testCreateFromArrayWithInvalidEventName(): void
+    {
+        $this->expectException(AssertionFailed::class);
+        $this->converter->createFromArray(['event_name' => \stdClass::class]);
+    }
+
     public function testConvertToArray(): void
     {
         $event = $this->createMock(ArraySerializable::class);
@@ -75,5 +95,11 @@ final class ArraySerializableEventConverterTest extends TestCase
             ],
             $this->converter->convertToArray($event)
         );
+    }
+
+    public function testConvertToArrayWithInvalidEventImplementation(): void
+    {
+        $this->expectException(AssertionFailed::class);
+        $this->converter->convertToArray($this->createMock(Event::class));
     }
 }
