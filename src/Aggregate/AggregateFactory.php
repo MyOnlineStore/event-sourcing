@@ -3,16 +3,13 @@ declare(strict_types=1);
 
 namespace MyOnlineStore\EventSourcing\Aggregate;
 
-use MyOnlineStore\EventSourcing\Event\Event;
+use MyOnlineStore\EventSourcing\Event\Stream;
 
 interface AggregateFactory
 {
-    /**
-     * @param Event[] $events
-     */
     public function reconstituteFromHistory(
         string $aggregateName,
         AggregateRootId $aggregateRootId,
-        array $events
+        Stream $eventStream
     ): AggregateRoot;
 }

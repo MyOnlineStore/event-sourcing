@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace MyOnlineStore\EventSourcing\Event;
 
+use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Exception\AssertionFailed;
 use MyOnlineStore\EventSourcing\Service\Assertion;
 
@@ -10,6 +11,9 @@ class BaseEvent implements ArraySerializable
 {
     /** @var EventId */
     private $id;
+
+    /** @var AggregateRootId */
+    private $aggregateId;
 
     /** @var \DateTimeImmutable */
     private $createdAt;
@@ -27,8 +31,9 @@ class BaseEvent implements ArraySerializable
      * @param mixed[] $payload
      * @param mixed[] $metadata
      */
-    private function __construct(array $payload, array $metadata = [])
+    private function __construct(AggregateRootId $aggregateId, array $payload, array $metadata = [])
     {
+        $this->aggregateId = $aggregateId;
         $this->payload = $payload;
         $this->metadata = $metadata;
     }
@@ -43,12 +48,13 @@ class BaseEvent implements ArraySerializable
     public static function fromArray(array $data): Event
     {
         Assertion::keyExists($data, 'event_id');
+        Assertion::keyExists($data, 'aggregate_id');
         Assertion::keyExists($data, 'payload');
         Assertion::keyExists($data, 'metadata');
         Assertion::keyExists($data, 'created_at');
         Assertion::keyExists($data, 'version');
 
-        $event = new static($data['payload'], $data['metadata']);
+        $event = new static(AggregateRootId::fromString($data['aggregate_id']), $data['payload'], $data['metadata']);
         $event->id = EventId::fromString($data['event_id']);
         $event->createdAt = \DateTimeImmutable::createFromFormat(\DATE_RFC3339_EXTENDED, $data['created_at']);
         $event->version = (int) $data['version'];
@@ -62,15 +68,20 @@ class BaseEvent implements ArraySerializable
      *
      * @return static
      */
-    public static function occur(array $payload, array $metadata = []): Event
+    public static function occur(AggregateRootId $aggregateId, array $payload, array $metadata = []): Event
     {
-        $event = new static($payload, $metadata);
+        $event = new static($aggregateId, $payload, $metadata);
         $event->id = EventId::generate();
         $event->version = 1;
         /** @noinspection PhpUnhandledExceptionInspection */
         $event->createdAt = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
         return $event;
+    }
+
+    public function getAggregateId(): AggregateRootId
+    {
+        return $this->aggregateId;
     }
 
     public function getCreatedAt(): \DateTimeImmutable
@@ -111,6 +122,7 @@ class BaseEvent implements ArraySerializable
     {
         return [
             'event_id' => (string) $this->id,
+            'aggregate_id' => (string) $this->aggregateId,
             'created_at' => $this->createdAt->format(\DATE_RFC3339_EXTENDED),
             'metadata' => $this->metadata,
             'payload' => $this->payload,

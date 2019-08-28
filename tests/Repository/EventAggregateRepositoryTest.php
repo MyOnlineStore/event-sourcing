@@ -7,6 +7,8 @@ use MyOnlineStore\EventSourcing\Aggregate\AggregateFactory;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRoot;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Event\Event;
+use MyOnlineStore\EventSourcing\Event\Stream;
+use MyOnlineStore\EventSourcing\Event\StreamMetadata;
 use MyOnlineStore\EventSourcing\Repository\EventAggregateRepository;
 use MyOnlineStore\EventSourcing\Repository\EventRepository;
 use PHPUnit\Framework\TestCase;
@@ -46,7 +48,12 @@ final class EventAggregateRepositoryTest extends TestCase
         $this->eventRepository->expects(self::once())
             ->method('load')
             ->with($this->streamName, $aggregateRootId)
-            ->willReturn($events = [$event = $this->createMock(Event::class), $event]);
+            ->willReturn(
+                $events = new Stream(
+                    [$event = $this->createMock(Event::class), $event],
+                    new StreamMetadata([]),
+                )
+            );
 
         $this->aggregateFactory->expects(self::once())
             ->method('reconstituteFromHistory')
@@ -66,8 +73,13 @@ final class EventAggregateRepositoryTest extends TestCase
             ->willReturn($events = [$event = $this->createMock(Event::class), $event]);
 
         $this->eventRepository->expects(self::once())
+            ->method('loadMetadata')
+            ->with($this->streamName, $aggregateRootId)
+            ->willReturn($metadata = new StreamMetadata([]));
+
+        $this->eventRepository->expects(self::once())
             ->method('appendTo')
-            ->with($this->streamName, $aggregateRootId, $events);
+            ->with($this->streamName, $aggregateRootId, new Stream($events, $metadata));
 
         $this->repository->save($aggregateRoot);
     }

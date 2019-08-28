@@ -4,17 +4,20 @@ declare(strict_types=1);
 namespace MyOnlineStore\EventSourcing\Repository;
 
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
-use MyOnlineStore\EventSourcing\Event\Event;
+use MyOnlineStore\EventSourcing\Event\Stream;
+use MyOnlineStore\EventSourcing\Event\StreamMetadata;
 
 interface EventRepository
 {
-    /**
-     * @param Event[] $events
-     */
-    public function appendTo(string $streamName, AggregateRootId $aggregateRootId, array $events): void;
+    public function appendTo(string $streamName, AggregateRootId $aggregateRootId, Stream $eventStream): void;
 
-    /**
-     * @return Event[]
-     */
-    public function load(string $streamName, AggregateRootId $aggregateRootId): array;
+    public function load(string $streamName, AggregateRootId $aggregateRootId): Stream;
+
+    public function loadMetadata(string $streamName, AggregateRootId $aggregateRootId): StreamMetadata;
+
+    public function updateMetadata(
+        string $streamName,
+        AggregateRootId $aggregateRootId,
+        StreamMetadata $metadata
+    ): void;
 }

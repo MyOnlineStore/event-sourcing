@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MyOnlineStore\EventSourcing\Aggregate;
 
 use MyOnlineStore\EventSourcing\Event\Event;
+use MyOnlineStore\EventSourcing\Event\Stream;
 
 abstract class AggregateRoot
 {
@@ -42,14 +43,11 @@ abstract class AggregateRoot
         return $pending;
     }
 
-    /**
-     * @param Event[] $events
-     */
-    public static function reconstituteFromHistory(AggregateRootId $aggregateRootId, array $events): AggregateRoot
+    public static function reconstituteFromHistory(AggregateRootId $aggregateRootId, Stream $eventStream): AggregateRoot
     {
         $instance = new static($aggregateRootId);
 
-        foreach ($events as $event) {
+        foreach ($eventStream as $event) {
             $instance->apply($event);
         }
 

@@ -6,6 +6,7 @@ namespace MyOnlineStore\EventSourcing\Repository;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateFactory;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRoot;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
+use MyOnlineStore\EventSourcing\Event\Stream;
 
 final class EventAggregateRepository implements AggregateRepository
 {
@@ -35,10 +36,15 @@ final class EventAggregateRepository implements AggregateRepository
 
     public function save(AggregateRoot $aggregateRoot): void
     {
+        $aggregateRootId = $aggregateRoot->getAggregateRootId();
+
         $this->eventRepository->appendTo(
             $this->streamName,
-            $aggregateRoot->getAggregateRootId(),
-            $aggregateRoot->popRecordedEvents()
+            $aggregateRootId,
+            new Stream(
+                $aggregateRoot->popRecordedEvents(),
+                $this->eventRepository->loadMetadata($this->streamName, $aggregateRootId)
+            )
         );
     }
 

@@ -8,10 +8,10 @@ interface EventConverter
     /**
      * @return mixed[]
      */
-    public function convertToArray(Event $event): array;
+    public function convertToArray(Event $event, StreamMetadata $streamMetadata): array;
 
     /**
      * @param mixed[] $data
      */
-    public function createFromArray(array $data): Event;
+    public function createFromArray(string $eventName, array $data, StreamMetadata $streamMetadata): Event;
 }

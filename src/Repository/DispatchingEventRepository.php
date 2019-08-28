@@ -4,40 +4,27 @@ declare(strict_types=1);
 namespace MyOnlineStore\EventSourcing\Repository;
 
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
-use MyOnlineStore\EventSourcing\Event\Event;
+use MyOnlineStore\EventSourcing\Event\Stream;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
-final class DispatchingEventRepository implements EventRepository
+final class DispatchingEventRepository extends EventRepositoryDecorator
 {
     /** @var EventDispatcherInterface */
     private $dispatcher;
 
-    /** @var EventRepository */
-    private $innerRepository;
-
     public function __construct(EventDispatcherInterface $dispatcher, EventRepository $innerRepository)
     {
         $this->dispatcher = $dispatcher;
-        $this->innerRepository = $innerRepository;
+
+        parent::__construct($innerRepository);
     }
 
-    /**
-     * @param Event[] $events
-     */
-    public function appendTo(string $streamName, AggregateRootId $aggregateRootId, array $events): void
+    public function appendTo(string $streamName, AggregateRootId $aggregateRootId, Stream $eventStream): void
     {
-        $this->innerRepository->appendTo($streamName, $aggregateRootId, $events);
+        parent::appendTo($streamName, $aggregateRootId, $eventStream);
 
-        foreach ($events as $event) {
+        foreach ($eventStream as $event) {
             $this->dispatcher->dispatch($event);
         }
-    }
-
-    /**
-     * @return Event[]
-     */
-    public function load(string $streamName, AggregateRootId $aggregateRootId): array
-    {
-        return $this->innerRepository->load($streamName, $aggregateRootId);
     }
 }
