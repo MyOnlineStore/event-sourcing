@@ -5,5 +5,8 @@ namespace MyOnlineStore\EventSourcing\Event;
 
 interface FieldEncrypting
 {
-    public static function getEncryptingFields(): EncryptingFields;
+    /**
+     * @return string[]
+     */
+    public static function getEncryptingFields(): array;
 }

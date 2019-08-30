@@ -11,13 +11,5 @@ interface EventRepository
 {
     public function appendTo(string $streamName, AggregateRootId $aggregateRootId, Stream $eventStream): void;
 
-    public function load(string $streamName, AggregateRootId $aggregateRootId): Stream;
-
-    public function loadMetadata(string $streamName, AggregateRootId $aggregateRootId): StreamMetadata;
-
-    public function updateMetadata(
-        string $streamName,
-        AggregateRootId $aggregateRootId,
-        StreamMetadata $metadata
-    ): void;
+    public function load(string $streamName, AggregateRootId $aggregateRootId, StreamMetadata $metadata): Stream;
 }

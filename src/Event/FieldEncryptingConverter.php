@@ -3,27 +3,27 @@ declare(strict_types=1);
 
 namespace MyOnlineStore\EventSourcing\Event;
 
-use Zend\Crypt\BlockCipher;
-use Zend\Crypt\Exception\InvalidArgumentException;
+use MyOnlineStore\EventSourcing\Encryption\Encrypter;
+use MyOnlineStore\EventSourcing\Exception\EncryptionFailed;
 
 final class FieldEncryptingConverter implements EventConverter
 {
-    /** @var BlockCipher */
-    private $blockCipher;
+    /** @var Encrypter */
+    private $encrypter;
 
     /** @var EventConverter */
     private $innerConverter;
 
-    public function __construct(BlockCipher $blockCipher, EventConverter $innerConverter)
+    public function __construct(Encrypter $encrypter, EventConverter $innerConverter)
     {
-        $this->blockCipher    = $blockCipher;
+        $this->encrypter = $encrypter;
         $this->innerConverter = $innerConverter;
     }
 
     /**
      * @return mixed[]
      *
-     * @throws InvalidArgumentException
+     * @throws EncryptionFailed
      */
     public function convertToArray(Event $event, StreamMetadata $streamMetadata): array
     {
@@ -33,11 +33,12 @@ final class FieldEncryptingConverter implements EventConverter
             return $data;
         }
 
-        $this->blockCipher->setKey($streamMetadata->getEncryptionKey());
-
         foreach ($event::getEncryptingFields() as $field) {
             if (isset($data['payload'][$field])) {
-                $data['payload'][$field] = $this->blockCipher->encrypt($data['payload'][$field]);
+                $data['payload'][$field] = $this->encrypter->encrypt(
+                    $streamMetadata->getEncryptionKey(),
+                    $data['payload'][$field]
+                );
             }
         }
 
@@ -53,20 +54,17 @@ final class FieldEncryptingConverter implements EventConverter
             return $this->innerConverter->createFromArray($eventName, $data, $streamMetadata);
         }
 
-        try {
-            $this->blockCipher->setKey($streamMetadata->getEncryptionKey());
-        } catch (InvalidArgumentException $exception) {
-            // Key might have been removed: decryption will fail, setting the fields to null
-        }
-
         /** @var FieldEncrypting $eventName */
-        /** @psalm-var class-string<FieldEncrypting> $field */
+        /** @psalm-var class-string<FieldEncrypting> $eventName */
 
         foreach ($eventName::getEncryptingFields() as $field) {
             if (isset($data['payload'][$field])) {
                 try {
-                    $data['payload'][$field] = $this->blockCipher->decrypt($data['payload'][$field]);
-                } catch (\Throwable $exception) {
+                    $data['payload'][$field] = $this->encrypter->decrypt(
+                        $streamMetadata->getEncryptionKey(),
+                        $data['payload'][$field]
+                    );
+                } catch (EncryptionFailed $exception) {
                     $data['payload'][$field] = null;
                 }
             }

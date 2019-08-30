@@ -66,4 +66,26 @@ final class DispatchingEventRepositoryTest extends TestCase
 
         $this->repository->appendTo($streamName, $aggregateRootId, $eventStream);
     }
+
+    public function testLoadCallsInnerRepositoryWithoutDispatching(): void
+    {
+        $streamName = 'foo';
+        $aggregateRootId = $this->createMock(AggregateRootId::class);
+        $eventStream = new Stream(
+            [
+                $event = $this->createMock(Event::class),
+                $event,
+            ],
+            $metadata = new StreamMetadata([])
+        );
+
+        $this->innerRepository->shouldReceive('load')
+            ->once()
+            ->with($streamName, $aggregateRootId, $metadata)
+            ->andReturn($eventStream);
+
+        $this->dispatcher->shouldNotReceive('dispatch');
+
+        self::assertSame($eventStream, $this->repository->load($streamName, $aggregateRootId, $metadata));
+    }
 }

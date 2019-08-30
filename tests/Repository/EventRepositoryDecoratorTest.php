@@ -56,28 +56,12 @@ final class EventRepositoryDecoratorTest extends TestCase
     {
         $this->innerRepository->expects(self::once())
             ->method('load')
-            ->with($this->streamName, $this->aggregateId)
+            ->with($this->streamName, $this->aggregateId, $this->streamMetadata)
             ->willReturn($this->stream);
 
-        self::assertSame($this->stream, $this->decorator->load($this->streamName, $this->aggregateId));
-    }
-
-    public function testLoadMetadata(): void
-    {
-        $this->innerRepository->expects(self::once())
-            ->method('loadMetadata')
-            ->with($this->streamName, $this->aggregateId)
-            ->willReturn($this->streamMetadata);
-
-        self::assertSame($this->streamMetadata, $this->decorator->loadMetadata($this->streamName, $this->aggregateId));
-    }
-
-    public function testUpdateMetadata(): void
-    {
-        $this->innerRepository->expects(self::once())
-            ->method('updateMetadata')
-            ->with($this->streamName, $this->aggregateId, $this->streamMetadata);
-
-        $this->decorator->updateMetadata($this->streamName, $this->aggregateId, $this->streamMetadata);
+        self::assertSame(
+            $this->stream,
+            $this->decorator->load($this->streamName, $this->aggregateId, $this->streamMetadata)
+        );
     }
 }

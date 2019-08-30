@@ -22,18 +22,8 @@ abstract class EventRepositoryDecorator implements EventRepository
         $this->innerRepository->appendTo($streamName, $aggregateRootId, $eventStream);
     }
 
-    public function load(string $streamName, AggregateRootId $aggregateRootId): Stream
+    public function load(string $streamName, AggregateRootId $aggregateRootId, StreamMetadata $metadata): Stream
     {
-        return $this->innerRepository->load($streamName, $aggregateRootId);
-    }
-
-    public function loadMetadata(string $streamName, AggregateRootId $aggregateRootId): StreamMetadata
-    {
-        return $this->innerRepository->loadMetadata($streamName, $aggregateRootId);
-    }
-
-    public function updateMetadata(string $streamName, AggregateRootId $aggregateRootId, StreamMetadata $metadata): void
-    {
-        $this->innerRepository->updateMetadata($streamName, $aggregateRootId, $metadata);
+        return $this->innerRepository->load($streamName, $aggregateRootId, $metadata);
     }
 }

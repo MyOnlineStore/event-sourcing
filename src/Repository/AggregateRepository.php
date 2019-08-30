@@ -8,7 +8,7 @@ use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 
 interface AggregateRepository
 {
-    public function save(AggregateRoot $aggregateRoot): void;
-
     public function load(AggregateRootId $aggregateRootId): AggregateRoot;
+
+    public function save(AggregateRoot $aggregateRoot): void;
 }

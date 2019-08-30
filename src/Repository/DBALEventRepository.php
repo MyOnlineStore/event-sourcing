@@ -13,10 +13,7 @@ use MyOnlineStore\EventSourcing\Event\StreamMetadata;
 use MyOnlineStore\EventSourcing\Exception\EncodingFailed;
 use MyOnlineStore\EventSourcing\Service\Encoder;
 
-/**
- * @final
- */
-class DBALEventRepository implements EventRepository
+final class DBALEventRepository implements EventRepository
 {
     /** @var Connection */
     private $connection;
@@ -38,8 +35,8 @@ class DBALEventRepository implements EventRepository
     }
 
     /**
-     * @throws DBALException
      * @throws ConnectionException
+     * @throws DBALException
      * @throws EncodingFailed
      */
     public function appendTo(string $streamName, AggregateRootId $aggregateRootId, Stream $eventStream): void
@@ -86,14 +83,12 @@ class DBALEventRepository implements EventRepository
      * @throws DBALException
      * @throws EncodingFailed
      */
-    public function load(string $streamName, AggregateRootId $aggregateRootId): Stream
+    public function load(string $streamName, AggregateRootId $aggregateRootId, StreamMetadata $metadata): Stream
     {
         $result = $this->connection->executeQuery(
             'SELECT * FROM '.$streamName.' WHERE aggregate_id = ? ORDER BY version ASC',
             [(string) $aggregateRootId]
         );
-
-        $metadata = $this->loadMetadata($streamName, $aggregateRootId);
 
         $events = [];
         while (false !== $eventData = $result->fetch()) {
@@ -112,36 +107,5 @@ class DBALEventRepository implements EventRepository
         }
 
         return new Stream($events, $metadata);
-    }
-
-    /**
-     * @throws DBALException
-     * @throws EncodingFailed
-     */
-    public function loadMetadata(string $streamName, AggregateRootId $aggregateRootId): StreamMetadata
-    {
-        $result = $this->connection->executeQuery(
-            'SELECT metadata FROM '.$streamName.'_metadata WHERE aggregate_id = ?',
-            [(string) $aggregateRootId]
-        )
-            ->fetch();
-
-        return new StreamMetadata($result ? $this->jsonEncoder->decode($result['metadata']) : []);
-    }
-
-    /**
-     * @throws DBALException
-     * @throws EncodingFailed
-     */
-    public function updateMetadata(string $streamName, AggregateRootId $aggregateRootId, StreamMetadata $metadata): void
-    {
-        $this->connection->executeUpdate(
-            'INSERT INTO '.$streamName.'_metadata (aggregate_id, metadata) VALUES (:aggregate_id, :metadata)
-            ON CONFLICT (aggregate_id) DO UPDATE SET metadata = :metadata',
-            [
-                'aggregate_id' => (string) $aggregateRootId,
-                'metadata' => $this->jsonEncoder->encode($metadata->getMetadata()),
-            ]
-        );
     }
 }

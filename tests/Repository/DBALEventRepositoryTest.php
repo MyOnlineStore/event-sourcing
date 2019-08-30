@@ -125,25 +125,10 @@ final class DBALEventRepositoryTest extends TestCase
 
     public function testLoad(): void
     {
-        $repository = $this->getMockBuilder(DBALEventRepository::class)
-            ->setConstructorArgs(
-                [
-                    $this->connection,
-                    $this->jsonEncoder,
-                    $this->eventConverter,
-                ]
-            )
-            ->onlyMethods(['loadMetadata'])
-            ->getMock();
-
         $streamName = 'event_stream';
         $aggregateRootId = $this->createMock(AggregateRootId::class);
         $aggregateRootId->method('__toString')->willReturn('agg-id');
-
-        $repository->expects(self::once())
-            ->method('loadMetadata')
-            ->with($streamName, $aggregateRootId)
-            ->willReturn($metadata = new StreamMetadata([]));
+        $metadata = new StreamMetadata([]);
 
         $this->connection->expects(self::once())
             ->method('executeQuery')
@@ -222,86 +207,9 @@ final class DBALEventRepositoryTest extends TestCase
                 $event2 = $this->createMock(Event::class)
             );
 
-        self::assertEquals(new Stream([$event1, $event2], $metadata), $repository->load($streamName, $aggregateRootId));
-    }
-
-    public function testLoadMetadata(): void
-    {
-        $streamName = 'stream';
-        $aggregateRootId = $this->createMock(AggregateRootId::class);
-        $aggregateRootId->method('__toString')->willReturn('agg-id');
-
-        $this->connection->expects(self::once())
-            ->method('executeQuery')
-            ->with('SELECT metadata FROM '.$streamName.'_metadata WHERE aggregate_id = ?', ['agg-id'])
-            ->willReturn($resultStatement = $this->createMock(ResultStatement::class));
-
-        $resultStatement->expects(self::once())
-            ->method('fetch')
-            ->willReturn(
-                [
-                    'aggregate_id' => 'agg-id',
-                    'metadata' => 'met_json',
-                ]
-            );
-
-        $this->jsonEncoder->expects(self::once())
-            ->method('decode')
-            ->with('met_json')
-            ->willReturn(['meta' => 'data']);
-
         self::assertEquals(
-            new StreamMetadata(['meta' => 'data']),
-            $this->repository->loadMetadata($streamName, $aggregateRootId)
+            new Stream([$event1, $event2], $metadata),
+            $this->repository->load($streamName, $aggregateRootId, $metadata)
         );
-    }
-
-    public function testLoadMetadataNotFound(): void
-    {
-        $streamName = 'stream';
-        $aggregateRootId = $this->createMock(AggregateRootId::class);
-        $aggregateRootId->method('__toString')->willReturn('agg-id');
-
-        $this->connection->expects(self::once())
-            ->method('executeQuery')
-            ->with('SELECT metadata FROM '.$streamName.'_metadata WHERE aggregate_id = ?', ['agg-id'])
-            ->willReturn($resultStatement = $this->createMock(ResultStatement::class));
-
-        $resultStatement->expects(self::once())
-            ->method('fetch')
-            ->willReturn(false);
-
-        $this->jsonEncoder->expects(self::never())->method('decode');
-
-        self::assertEquals(
-            new StreamMetadata([]),
-            $this->repository->loadMetadata($streamName, $aggregateRootId)
-        );
-    }
-
-    public function testUpdateMetadata(): void
-    {
-        $streamName = 'stream';
-        $aggregateRootId = $this->createMock(AggregateRootId::class);
-        $aggregateRootId->method('__toString')->willReturn('agg-id');
-        $metadata = new StreamMetadata(['foo' => 'bar']);
-
-        $this->jsonEncoder->expects(self::once())
-            ->method('encode')
-            ->with(['foo' => 'bar'])
-            ->willReturn('foobar_json');
-
-        $this->connection->expects(self::once())
-            ->method('executeUpdate')
-            ->with(
-                'INSERT INTO '.$streamName.'_metadata (aggregate_id, metadata) VALUES (:aggregate_id, :metadata)
-            ON CONFLICT (aggregate_id) DO UPDATE SET metadata = :metadata',
-                [
-                    'aggregate_id' => 'agg-id',
-                    'metadata' => 'foobar_json',
-                ]
-            );
-
-        $this->repository->updateMetadata($streamName, $aggregateRootId, $metadata);
     }
 }

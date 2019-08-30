@@ -4,20 +4,19 @@ declare(strict_types=1);
 namespace MyOnlineStore\EventSourcing\Tests\Event;
 
 use Mockery\MockInterface;
-use MyOnlineStore\EventSourcing\Event\EncryptingFields;
+use MyOnlineStore\EventSourcing\Encryption\Encrypter;
 use MyOnlineStore\EventSourcing\Event\Event;
 use MyOnlineStore\EventSourcing\Event\EventConverter;
 use MyOnlineStore\EventSourcing\Event\FieldEncrypting;
 use MyOnlineStore\EventSourcing\Event\FieldEncryptingConverter;
 use MyOnlineStore\EventSourcing\Event\StreamMetadata;
+use MyOnlineStore\EventSourcing\Exception\EncryptionFailed;
 use PHPUnit\Framework\TestCase;
-use Zend\Crypt\BlockCipher;
-use Zend\Crypt\Exception\InvalidArgumentException;
 
 final class FieldEncryptingConverterTest extends TestCase
 {
-    /** @var BlockCipher */
-    private $blockCipher;
+    /** @var Encrypter */
+    private $encrypter;
 
     /** @var FieldEncryptingConverter */
     private $converter;
@@ -31,7 +30,7 @@ final class FieldEncryptingConverterTest extends TestCase
     protected function setUp(): void
     {
         $this->converter = new FieldEncryptingConverter(
-            $this->blockCipher = $this->createMock(BlockCipher::class),
+            $this->encrypter = $this->createMock(Encrypter::class),
             $this->innerConverter = $this->createMock(EventConverter::class)
         );
 
@@ -42,7 +41,7 @@ final class FieldEncryptingConverterTest extends TestCase
     {
         $event = $this->createMock(Event::class);
 
-        $this->blockCipher->expects(self::never())->method('encrypt');
+        $this->encrypter->expects(self::never())->method('encrypt');
 
         $this->innerConverter->expects(self::once())
             ->method('convertToArray')
@@ -62,16 +61,12 @@ final class FieldEncryptingConverterTest extends TestCase
             ->with($event, $this->streamMetadata)
             ->willReturn(['payload' => ['foo' => 'bar']]);
 
-        $this->blockCipher->expects(self::once())
-            ->method('setKey')
-            ->with('foo');
-
         $event->shouldReceive('getEncryptingFields')
-            ->andReturn(new EncryptingFields(['foo']));
+            ->andReturn(['foo']);
 
-        $this->blockCipher->expects(self::once())
+        $this->encrypter->expects(self::once())
             ->method('encrypt')
-            ->with('bar')
+            ->with('foo', 'bar')
             ->willReturn('encrypted_bar');
 
         self::assertSame(
@@ -90,7 +85,7 @@ final class FieldEncryptingConverterTest extends TestCase
             ->with($eventName, $data, $this->streamMetadata)
             ->willReturn($event = $this->createMock(Event::class));
 
-        $this->blockCipher->expects(self::never())->method('decrypt');
+        $this->encrypter->expects(self::never())->method('decrypt');
 
         self::assertSame($event, $this->converter->createFromArray($eventName, $data, $this->streamMetadata));
     }
@@ -101,16 +96,12 @@ final class FieldEncryptingConverterTest extends TestCase
         $event = \Mockery::mock(\sprintf('%s, %s', FieldEncrypting::class, Event::class));
         $eventName = \get_class($event);
 
-        $this->blockCipher->expects(self::once())
-            ->method('setKey')
-            ->with('foo');
-
         $event->shouldReceive('getEncryptingFields')
-            ->andReturn(new EncryptingFields(['foo']));
+            ->andReturn(['foo']);
 
-        $this->blockCipher->expects(self::once())
+        $this->encrypter->expects(self::once())
             ->method('decrypt')
-            ->with('bar_encrypted')
+            ->with('foo', 'bar_encrypted')
             ->willReturn('bar');
 
         $this->innerConverter->expects(self::once())
@@ -134,51 +125,13 @@ final class FieldEncryptingConverterTest extends TestCase
         $event = \Mockery::mock(\sprintf('%s, %s', FieldEncrypting::class, Event::class));
         $eventName = \get_class($event);
 
-        $this->blockCipher->expects(self::once())
-            ->method('setKey')
-            ->with('foo');
-
         $event->shouldReceive('getEncryptingFields')
-            ->andReturn(new EncryptingFields(['foo']));
+            ->andReturn(['foo']);
 
-        $this->blockCipher->expects(self::once())
+        $this->encrypter->expects(self::once())
             ->method('decrypt')
-            ->with('bar_encrypted')
-            ->willThrowException(new InvalidArgumentException());
-
-        $this->innerConverter->expects(self::once())
-            ->method('createFromArray')
-            ->with($eventName, ['payload' => ['foo' => null]], $this->streamMetadata)
-            ->willReturn($event);
-
-        self::assertSame(
-            $event,
-            $this->converter->createFromArray(
-                $eventName,
-                ['payload' => ['foo' => 'bar_encrypted']],
-                $this->streamMetadata
-            )
-        );
-    }
-
-    public function testCreateFromArrayDoesNotErrorIfKeyEmptyAndSetsFieldToNullIfCantDecrypt(): void
-    {
-        /** @var Event|FieldEncrypting|MockInterface $event */
-        $event = \Mockery::mock(\sprintf('%s, %s', FieldEncrypting::class, Event::class));
-        $eventName = \get_class($event);
-
-        $this->blockCipher->expects(self::once())
-            ->method('setKey')
-            ->with('foo')
-            ->willThrowException(new InvalidArgumentException());
-
-        $event->shouldReceive('getEncryptingFields')
-            ->andReturn(new EncryptingFields(['foo']));
-
-        $this->blockCipher->expects(self::once())
-            ->method('decrypt')
-            ->with('bar_encrypted')
-            ->willThrowException(new InvalidArgumentException());
+            ->with('foo', 'bar_encrypted')
+            ->willThrowException(EncryptionFailed::toDecrypt());
 
         $this->innerConverter->expects(self::once())
             ->method('createFromArray')

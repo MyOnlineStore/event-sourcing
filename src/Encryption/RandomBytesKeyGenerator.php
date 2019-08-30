@@ -1,12 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace MyOnlineStore\EventSourcing\Service;
+namespace MyOnlineStore\EventSourcing\Encryption;
 
-/**
- * @final
- */
-class KeyGenerator
+final class RandomBytesKeyGenerator implements KeyGenerator
 {
     /** @var int */
     private $size;
@@ -16,6 +13,9 @@ class KeyGenerator
         $this->size = $size;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function generate(): string
     {
         return \bin2hex(\random_bytes($this->size));

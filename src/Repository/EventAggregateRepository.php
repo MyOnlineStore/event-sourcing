@@ -16,6 +16,9 @@ final class EventAggregateRepository implements AggregateRepository
     /** @var EventRepository */
     private $eventRepository;
 
+    /** @var MetadataRepository */
+    private $metadataRepository;
+
     /** @var string */
     private $streamName;
 
@@ -25,11 +28,13 @@ final class EventAggregateRepository implements AggregateRepository
     public function __construct(
         AggregateFactory $aggregateFactory,
         EventRepository $eventRepository,
+        MetadataRepository $metadataRepository,
         string $aggregateName,
         string $streamName
     ) {
         $this->aggregateFactory = $aggregateFactory;
         $this->eventRepository = $eventRepository;
+        $this->metadataRepository = $metadataRepository;
         $this->aggregateName = $aggregateName;
         $this->streamName = $streamName;
     }
@@ -43,7 +48,7 @@ final class EventAggregateRepository implements AggregateRepository
             $aggregateRootId,
             new Stream(
                 $aggregateRoot->popRecordedEvents(),
-                $this->eventRepository->loadMetadata($this->streamName, $aggregateRootId)
+                $this->metadataRepository->load($this->streamName, $aggregateRootId)
             )
         );
     }
@@ -55,7 +60,8 @@ final class EventAggregateRepository implements AggregateRepository
             $aggregateRootId,
             $this->eventRepository->load(
                 $this->streamName,
-                $aggregateRootId
+                $aggregateRootId,
+                $this->metadataRepository->load($this->streamName, $aggregateRootId)
             )
         );
     }
