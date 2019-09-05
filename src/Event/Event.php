@@ -3,8 +3,12 @@ declare(strict_types=1);
 
 namespace MyOnlineStore\EventSourcing\Event;
 
+use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
+
 interface Event
 {
+    public function getAggregateId(): AggregateRootId;
+
     public function getCreatedAt(): \DateTimeImmutable;
 
     public function getId(): EventId;

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace MyOnlineStore\EventSourcing\Tests\Event;
 
+use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Event\BaseEvent;
 use MyOnlineStore\EventSourcing\Event\EventId;
 use MyOnlineStore\EventSourcing\Exception\AssertionFailed;
@@ -15,6 +16,7 @@ final class BaseEventTest extends TestCase
         yield [[]];
         yield [
             [
+                'aggregate_id' => '7311db73-de57-4fb0-b8bc-84dc37296c1f',
                 'created_at' => '2019-08-21T14:31:30.374+02:00',
                 'metadata' => [],
                 'payload' => [],
@@ -24,6 +26,7 @@ final class BaseEventTest extends TestCase
         yield [
             [
                 'event_id' => '8311db73-de57-4fb0-b8bc-84dc37296c1e',
+                'created_at' => '2019-08-21T14:31:30.374+02:00',
                 'metadata' => [],
                 'payload' => [],
                 'version' => 5,
@@ -32,6 +35,16 @@ final class BaseEventTest extends TestCase
         yield [
             [
                 'event_id' => '8311db73-de57-4fb0-b8bc-84dc37296c1e',
+                'aggregate_id' => '7311db73-de57-4fb0-b8bc-84dc37296c1f',
+                'metadata' => [],
+                'payload' => [],
+                'version' => 5,
+            ],
+        ];
+        yield [
+            [
+                'event_id' => '8311db73-de57-4fb0-b8bc-84dc37296c1e',
+                'aggregate_id' => '7311db73-de57-4fb0-b8bc-84dc37296c1f',
                 'created_at' => '2019-08-21T14:31:30.374+02:00',
                 'payload' => [],
                 'version' => 5,
@@ -40,6 +53,7 @@ final class BaseEventTest extends TestCase
         yield [
             [
                 'event_id' => '8311db73-de57-4fb0-b8bc-84dc37296c1e',
+                'aggregate_id' => '7311db73-de57-4fb0-b8bc-84dc37296c1f',
                 'created_at' => '2019-08-21T14:31:30.374+02:00',
                 'metadata' => [],
                 'version' => 5,
@@ -48,6 +62,7 @@ final class BaseEventTest extends TestCase
         yield [
             [
                 'event_id' => '8311db73-de57-4fb0-b8bc-84dc37296c1e',
+                'aggregate_id' => '7311db73-de57-4fb0-b8bc-84dc37296c1f',
                 'created_at' => '2019-08-21T14:31:30.374+02:00',
                 'metadata' => [],
                 'payload' => [],
@@ -71,6 +86,7 @@ final class BaseEventTest extends TestCase
         $event = BaseEvent::fromArray(
             [
                 'event_id' => '8311db73-de57-4fb0-b8bc-84dc37296c1e',
+                'aggregate_id' => '7311db73-de57-4fb0-b8bc-84dc37296c1f',
                 'created_at' => '2019-08-21T14:31:30.374+02:00',
                 'payload' => ['foo' => 'bar'],
                 'metadata' => ['baz' => 'qux'],
@@ -90,8 +106,10 @@ final class BaseEventTest extends TestCase
 
     public function testOccurWithMetadata(): void
     {
-        $event = BaseEvent::occur(['foo' => 'bar'], ['baz' => 'qux']);
+        $aggregateId = AggregateRootId::fromString('7311db73-de57-4fb0-b8bc-84dc37296c1f');
+        $event = BaseEvent::occur($aggregateId, ['foo' => 'bar'], ['baz' => 'qux']);
 
+        self::assertEquals($aggregateId, $event->getAggregateId());
         self::assertSame(1, $event->getVersion());
         self::assertSame(['foo' => 'bar'], $event->getPayload());
         self::assertSame(['baz' => 'qux'], $event->getMetadata());
@@ -101,8 +119,10 @@ final class BaseEventTest extends TestCase
 
     public function testOccurWithoutMetadata(): void
     {
-        $event = BaseEvent::occur(['foo' => 'bar']);
+        $aggregateId = AggregateRootId::fromString('7311db73-de57-4fb0-b8bc-84dc37296c1f');
+        $event = BaseEvent::occur($aggregateId, ['foo' => 'bar']);
 
+        self::assertEquals($aggregateId, $event->getAggregateId());
         self::assertSame(1, $event->getVersion());
         self::assertSame(['foo' => 'bar'], $event->getPayload());
         self::assertSame([], $event->getMetadata());
@@ -112,10 +132,12 @@ final class BaseEventTest extends TestCase
 
     public function testToArray(): void
     {
-        $event = BaseEvent::occur(['foo' => 'bar']);
+        $aggregateId = AggregateRootId::fromString('7311db73-de57-4fb0-b8bc-84dc37296c1f');
+        $event = BaseEvent::occur($aggregateId, ['foo' => 'bar']);
         $array = $event->toArray();
 
         self::assertSame($array['event_id'], (string) $event->getId());
+        self::assertSame($array['aggregate_id'], '7311db73-de57-4fb0-b8bc-84dc37296c1f');
         self::assertSame($array['created_at'], $event->getCreatedAt()->format(\DATE_RFC3339_EXTENDED));
         self::assertSame($array['metadata'], $event->getMetadata());
         self::assertSame($array['payload'], $event->getPayload());
@@ -124,7 +146,8 @@ final class BaseEventTest extends TestCase
 
     public function testWithMetadata(): void
     {
-        $event = BaseEvent::occur(['foo' => 'bar']);
+        $aggregateId = AggregateRootId::fromString('7311db73-de57-4fb0-b8bc-84dc37296c1f');
+        $event = BaseEvent::occur($aggregateId, ['foo' => 'bar']);
         $withMetadata = $event->withMetadata('baz', 'qux');
 
         self::assertSame([], $event->getMetadata());
@@ -133,7 +156,8 @@ final class BaseEventTest extends TestCase
 
     public function testWithVersion(): void
     {
-        $event = BaseEvent::occur(['foo' => 'bar']);
+        $aggregateId = AggregateRootId::fromString('7311db73-de57-4fb0-b8bc-84dc37296c1f');
+        $event = BaseEvent::occur($aggregateId, ['foo' => 'bar']);
         $withVersion = $event->withVersion(5);
 
         self::assertSame(1, $event->getVersion());

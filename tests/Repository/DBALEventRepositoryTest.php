@@ -9,7 +9,10 @@ use Doctrine\DBAL\Driver\Statement;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Event\Event;
 use MyOnlineStore\EventSourcing\Event\EventConverter;
+use MyOnlineStore\EventSourcing\Event\Stream;
+use MyOnlineStore\EventSourcing\Event\StreamMetadata;
 use MyOnlineStore\EventSourcing\Repository\DBALEventRepository;
+use MyOnlineStore\EventSourcing\Service\Encoder;
 use PHPUnit\Framework\TestCase;
 
 final class DBALEventRepositoryTest extends TestCase
@@ -20,6 +23,9 @@ final class DBALEventRepositoryTest extends TestCase
     /** @var EventConverter */
     private $eventConverter;
 
+    /** @var Encoder */
+    private $jsonEncoder;
+
     /** @var DBALEventRepository */
     private $repository;
 
@@ -27,6 +33,7 @@ final class DBALEventRepositoryTest extends TestCase
     {
         $this->repository = new DBALEventRepository(
             $this->connection = $this->createMock(Connection::class),
+            $this->jsonEncoder = $this->createMock(Encoder::class),
             $this->eventConverter = $this->createMock(EventConverter::class)
         );
     }
@@ -35,7 +42,6 @@ final class DBALEventRepositoryTest extends TestCase
     {
         $streamName = 'stream';
         $aggregateRootId = $this->createMock(AggregateRootId::class);
-        $aggregateRootId->method('__toString')->willReturn('agg_id');
         $events = [
             $event1 = $this->createMock(Event::class),
             $event2 = $this->createMock(Event::class),
@@ -46,6 +52,7 @@ final class DBALEventRepositoryTest extends TestCase
             ->willReturnOnConsecutiveCalls(
                 [
                     'event_id' => 'event1a',
+                    'aggregate_id' => 'event1f',
                     'payload' => 'event1b',
                     'metadata' => 'event1c',
                     'created_at' => 'event1d',
@@ -53,11 +60,27 @@ final class DBALEventRepositoryTest extends TestCase
                 ],
                 [
                     'event_id' => 'event2a',
+                    'aggregate_id' => 'event2f',
                     'payload' => 'event2b',
                     'metadata' => 'event2c',
                     'created_at' => 'event2d',
                     'version' => 'event2e',
                 ]
+            );
+
+        $this->jsonEncoder->expects(self::exactly(4))
+            ->method('encode')
+            ->withConsecutive(
+                ['event1b'],
+                ['event1c'],
+                ['event2b'],
+                ['event2c']
+            )
+            ->willReturnOnConsecutiveCalls(
+                'event1b_json',
+                'event1c_json',
+                'event2b_json',
+                'event2c_json'
             );
 
         $this->connection->expects(self::once())->method('beginTransaction');
@@ -71,23 +94,23 @@ final class DBALEventRepositoryTest extends TestCase
                 [
                     'event1a',
                     \get_class($event1),
-                    'agg_id',
-                    'event1b',
-                    'event1c',
+                    'event1f',
+                    'event1b_json',
+                    'event1c_json',
                     'event1d',
                     'event1e',
                     'event2a',
                     \get_class($event2),
-                    'agg_id',
-                    'event2b',
-                    'event2c',
+                    'event2f',
+                    'event2b_json',
+                    'event2c_json',
                     'event2d',
                     'event2e',
                 ]
             );
         $this->connection->expects(self::once())->method('commit');
 
-        $this->repository->appendTo($streamName, $aggregateRootId, $events);
+        $this->repository->appendTo($streamName, $aggregateRootId, new Stream($events, new StreamMetadata([])));
     }
 
     public function testAppendToDoesNothingIfNoEventsToAppend(): void
@@ -97,16 +120,15 @@ final class DBALEventRepositoryTest extends TestCase
         $this->eventConverter->expects(self::never())->method('convertToArray');
         $this->connection->expects(self::never())->method('beginTransaction');
 
-        $this->repository->appendTo('stream', $aggregateRootId, []);
+        $this->repository->appendTo('stream', $aggregateRootId, new Stream([], new StreamMetadata([])));
     }
 
     public function testLoad(): void
     {
         $streamName = 'event_stream';
         $aggregateRootId = $this->createMock(AggregateRootId::class);
-        $aggregateRootId->expects(self::once())
-            ->method('__toString')
-            ->willReturn('agg-id');
+        $aggregateRootId->method('__toString')->willReturn('agg-id');
+        $metadata = new StreamMetadata([]);
 
         $this->connection->expects(self::once())
             ->method('executeQuery')
@@ -115,16 +137,79 @@ final class DBALEventRepositoryTest extends TestCase
 
         $result->expects(self::exactly(3))
             ->method('fetch')
-            ->willReturnOnConsecutiveCalls(['event1'], ['event2'], false);
+            ->willReturnOnConsecutiveCalls(
+                [
+                    'event_name' => 'event1',
+                    'event_id' => 'id1',
+                    'aggregate_id' => 'agg1',
+                    'payload' => 'pay1_json',
+                    'metadata' => 'met1_json',
+                    'created_at' => 'ts1',
+                    'version' => 'v1',
+                ],
+                [
+                    'event_name' => 'event2',
+                    'event_id' => 'id2',
+                    'aggregate_id' => 'agg2',
+                    'payload' => 'pay2_json',
+                    'metadata' => 'met2_json',
+                    'created_at' => 'ts2',
+                    'version' => 'v2',
+                ],
+                false
+            );
+
+        $this->jsonEncoder->expects(self::exactly(4))
+            ->method('decode')
+            ->withConsecutive(
+                ['pay1_json'],
+                ['met1_json'],
+                ['pay2_json'],
+                ['met2_json'],
+            )
+            ->willReturnOnConsecutiveCalls(
+                'pay1',
+                'met1',
+                'pay2',
+                'met2',
+            );
 
         $this->eventConverter->expects(self::exactly(2))
             ->method('createFromArray')
-            ->withConsecutive([['event1']], [['event2']])
+            ->withConsecutive(
+                [
+                    'event1',
+                    [
+                        'event_id' => 'id1',
+                        'aggregate_id' => 'agg1',
+                        'payload' => 'pay1',
+                        'metadata' => 'met1',
+                        'created_at' => 'ts1',
+                        'version' => 'v1',
+                    ],
+                    $metadata,
+                ],
+                [
+                    'event2',
+                    [
+                        'event_id' => 'id2',
+                        'aggregate_id' => 'agg2',
+                        'payload' => 'pay2',
+                        'metadata' => 'met2',
+                        'created_at' => 'ts2',
+                        'version' => 'v2',
+                    ],
+                    $metadata,
+                ],
+            )
             ->willReturnOnConsecutiveCalls(
                 $event1 = $this->createMock(Event::class),
                 $event2 = $this->createMock(Event::class)
             );
 
-        self::assertSame([$event1, $event2], $this->repository->load($streamName, $aggregateRootId));
+        self::assertEquals(
+            new Stream([$event1, $event2], $metadata),
+            $this->repository->load($streamName, $aggregateRootId, $metadata)
+        );
     }
 }

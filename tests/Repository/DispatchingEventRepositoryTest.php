@@ -6,6 +6,8 @@ namespace MyOnlineStore\EventSourcing\Tests\Repository;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Event\Event;
+use MyOnlineStore\EventSourcing\Event\Stream;
+use MyOnlineStore\EventSourcing\Event\StreamMetadata;
 use MyOnlineStore\EventSourcing\Repository\DispatchingEventRepository;
 use MyOnlineStore\EventSourcing\Repository\EventRepository;
 use PHPUnit\Framework\TestCase;
@@ -36,14 +38,17 @@ final class DispatchingEventRepositoryTest extends TestCase
     {
         $streamName = 'foo';
         $aggregateRootId = $this->createMock(AggregateRootId::class);
-        $events = [
-            $event1 = $this->createMock(Event::class),
-            $event2 = $this->createMock(Event::class),
-        ];
+        $eventStream = new Stream(
+            [
+                $event1 = $this->createMock(Event::class),
+                $event2 = $this->createMock(Event::class),
+            ],
+            new StreamMetadata([])
+        );
 
         $this->innerRepository->shouldReceive('appendTo')
             ->once()
-            ->with($streamName, $aggregateRootId, $events)
+            ->with($streamName, $aggregateRootId, $eventStream)
             ->globally()
             ->ordered();
 
@@ -59,21 +64,28 @@ final class DispatchingEventRepositoryTest extends TestCase
             ->globally()
             ->ordered();
 
-        $this->repository->appendTo($streamName, $aggregateRootId, $events);
+        $this->repository->appendTo($streamName, $aggregateRootId, $eventStream);
     }
 
     public function testLoadCallsInnerRepositoryWithoutDispatching(): void
     {
         $streamName = 'foo';
         $aggregateRootId = $this->createMock(AggregateRootId::class);
+        $eventStream = new Stream(
+            [
+                $event = $this->createMock(Event::class),
+                $event,
+            ],
+            $metadata = new StreamMetadata([])
+        );
 
         $this->innerRepository->shouldReceive('load')
             ->once()
-            ->with($streamName, $aggregateRootId)
-            ->andReturn($stream = [$event = $this->createMock(Event::class)]);
+            ->with($streamName, $aggregateRootId, $metadata)
+            ->andReturn($eventStream);
 
         $this->dispatcher->shouldNotReceive('dispatch');
 
-        self::assertSame($stream, $this->repository->load($streamName, $aggregateRootId));
+        self::assertSame($eventStream, $this->repository->load($streamName, $aggregateRootId, $metadata));
     }
 }

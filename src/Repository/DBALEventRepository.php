@@ -7,8 +7,11 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\DBALException;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
-use MyOnlineStore\EventSourcing\Event\Event;
 use MyOnlineStore\EventSourcing\Event\EventConverter;
+use MyOnlineStore\EventSourcing\Event\Stream;
+use MyOnlineStore\EventSourcing\Event\StreamMetadata;
+use MyOnlineStore\EventSourcing\Exception\EncodingFailed;
+use MyOnlineStore\EventSourcing\Service\Encoder;
 
 final class DBALEventRepository implements EventRepository
 {
@@ -18,25 +21,32 @@ final class DBALEventRepository implements EventRepository
     /** @var EventConverter */
     private $eventConverter;
 
-    public function __construct(Connection $connection, EventConverter $eventConverter)
-    {
+    /** @var Encoder */
+    private $jsonEncoder;
+
+    public function __construct(
+        Connection $connection,
+        Encoder $jsonEncoder,
+        EventConverter $eventConverter
+    ) {
         $this->connection = $connection;
+        $this->jsonEncoder = $jsonEncoder;
         $this->eventConverter = $eventConverter;
     }
 
     /**
-     * @param Event[] $events
-     *
      * @throws ConnectionException
      * @throws DBALException
+     * @throws EncodingFailed
      */
-    public function appendTo(string $streamName, AggregateRootId $aggregateRootId, array $events): void
+    public function appendTo(string $streamName, AggregateRootId $aggregateRootId, Stream $eventStream): void
     {
-        if (empty($events)) {
+        $eventCount = $eventStream->count();
+
+        if (0 === $eventCount) {
             return;
         }
 
-        $eventCount = \count($events);
         $insertStatement = 'INSERT INTO '.$streamName.' (
             event_id,
             event_name,
@@ -48,14 +58,16 @@ final class DBALEventRepository implements EventRepository
         ) VALUES '.\implode(',', \array_fill(0, $eventCount, '(?, ?, ?, ?, ?, ?, ?)'));
 
         $data = [];
-        foreach ($events as $event) {
-            $eventData = $this->eventConverter->convertToArray($event);
+        $metadata = $eventStream->getMetadata();
+
+        foreach ($eventStream as $event) {
+            $eventData = $this->eventConverter->convertToArray($event, $metadata);
 
             $data[] = $eventData['event_id'];
             $data[] = \get_class($event);
-            $data[] = (string) $aggregateRootId;
-            $data[] = $eventData['payload'];
-            $data[] = $eventData['metadata'];
+            $data[] = $eventData['aggregate_id'];
+            $data[] = $this->jsonEncoder->encode($eventData['payload']);
+            $data[] = $this->jsonEncoder->encode($eventData['metadata']);
             $data[] = $eventData['created_at'];
             $data[] = $eventData['version'];
         }
@@ -68,11 +80,10 @@ final class DBALEventRepository implements EventRepository
     }
 
     /**
-     * @return Event[]
-     *
      * @throws DBALException
+     * @throws EncodingFailed
      */
-    public function load(string $streamName, AggregateRootId $aggregateRootId): array
+    public function load(string $streamName, AggregateRootId $aggregateRootId, StreamMetadata $metadata): Stream
     {
         $result = $this->connection->executeQuery(
             'SELECT * FROM '.$streamName.' WHERE aggregate_id = ? ORDER BY version ASC',
@@ -81,9 +92,20 @@ final class DBALEventRepository implements EventRepository
 
         $events = [];
         while (false !== $eventData = $result->fetch()) {
-            $events[] = $this->eventConverter->createFromArray($eventData);
+            $events[] = $this->eventConverter->createFromArray(
+                $eventData['event_name'],
+                [
+                    'event_id' => $eventData['event_id'],
+                    'aggregate_id' => $eventData['aggregate_id'],
+                    'payload' => $this->jsonEncoder->decode($eventData['payload']),
+                    'metadata' => $this->jsonEncoder->decode($eventData['metadata']),
+                    'created_at' => $eventData['created_at'],
+                    'version' => $eventData['version'],
+                ],
+                $metadata
+            );
         }
 
-        return $events;
+        return new Stream($events, $metadata);
     }
 }

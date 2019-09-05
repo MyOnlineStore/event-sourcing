@@ -12,5 +12,7 @@
     <file>src</file>
     <file>tests</file>
 
-    <rule ref="vendor/myonlinestore/coding-standard/MyOnlineStore/ruleset.xml"/>
+    <rule ref="vendor/myonlinestore/coding-standard/MyOnlineStore/ruleset.xml">
+        <exclude name="SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter"/>
+    </rule>
 </ruleset>

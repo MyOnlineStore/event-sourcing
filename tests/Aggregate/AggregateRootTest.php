@@ -6,6 +6,8 @@ namespace MyOnlineStore\EventSourcing\Tests\Aggregate;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRoot;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Event\BaseEvent;
+use MyOnlineStore\EventSourcing\Event\Stream;
+use MyOnlineStore\EventSourcing\Event\StreamMetadata;
 use PHPUnit\Framework\TestCase;
 
 final class AggregateRootTest extends TestCase
@@ -32,7 +34,7 @@ final class AggregateRootTest extends TestCase
 
             public function baseAction(): void
             {
-                $this->recordThat(BaseEvent::occur(['foo' => 'bar']));
+                $this->recordThat(BaseEvent::occur($this->aggregateRootId, ['foo' => 'bar']));
             }
 
             protected function applyBaseEvent(BaseEvent $event): void
@@ -66,7 +68,10 @@ final class AggregateRootTest extends TestCase
         $aggregateName = \get_class($this->aggregateRoot);
         $aggregateRoot = $aggregateName::reconstituteFromHistory(
             $this->aggregateRootId,
-            [BaseEvent::occur(['foo' => 'qux'])]
+            new Stream(
+                [BaseEvent::occur($this->aggregateRootId, ['foo' => 'qux'])],
+                new StreamMetadata([])
+            )
         );
 
         self::assertSame(1, $aggregateRoot->getVersion());

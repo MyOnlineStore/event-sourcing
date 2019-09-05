@@ -4,7 +4,8 @@ declare(strict_types=1);
 namespace MyOnlineStore\EventSourcing\Repository;
 
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
-use MyOnlineStore\EventSourcing\Event\Event;
+use MyOnlineStore\EventSourcing\Event\Stream;
+use MyOnlineStore\EventSourcing\Event\StreamMetadata;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 final class DispatchingEventRepository implements EventRepository
@@ -21,23 +22,17 @@ final class DispatchingEventRepository implements EventRepository
         $this->innerRepository = $innerRepository;
     }
 
-    /**
-     * @param Event[] $events
-     */
-    public function appendTo(string $streamName, AggregateRootId $aggregateRootId, array $events): void
+    public function appendTo(string $streamName, AggregateRootId $aggregateRootId, Stream $eventStream): void
     {
-        $this->innerRepository->appendTo($streamName, $aggregateRootId, $events);
+        $this->innerRepository->appendTo($streamName, $aggregateRootId, $eventStream);
 
-        foreach ($events as $event) {
+        foreach ($eventStream as $event) {
             $this->dispatcher->dispatch($event);
         }
     }
 
-    /**
-     * @return Event[]
-     */
-    public function load(string $streamName, AggregateRootId $aggregateRootId): array
+    public function load(string $streamName, AggregateRootId $aggregateRootId, StreamMetadata $metadata): Stream
     {
-        return $this->innerRepository->load($streamName, $aggregateRootId);
+        return $this->innerRepository->load($streamName, $aggregateRootId, $metadata);
     }
 }

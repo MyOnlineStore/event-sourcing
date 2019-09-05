@@ -3,24 +3,21 @@ declare(strict_types=1);
 
 namespace MyOnlineStore\EventSourcing\Aggregate;
 
-use MyOnlineStore\EventSourcing\Event\Event;
+use MyOnlineStore\EventSourcing\Event\Stream;
 use MyOnlineStore\EventSourcing\Service\Assertion;
 
 final class FQCNAggregateFactory implements AggregateFactory
 {
-    /**
-     * @param Event[] $events
-     */
     public function reconstituteFromHistory(
         string $aggregateName,
         AggregateRootId $aggregateRootId,
-        array $events
+        Stream $eventStream
     ): AggregateRoot {
         Assertion::classExists($aggregateName);
         Assertion::subclassOf($aggregateName, AggregateRoot::class);
 
         /** @var AggregateRoot $aggregateName */
 
-        return $aggregateName::reconstituteFromHistory($aggregateRootId, $events);
+        return $aggregateName::reconstituteFromHistory($aggregateRootId, $eventStream);
     }
 }
