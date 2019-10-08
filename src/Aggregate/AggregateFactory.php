@@ -7,6 +7,9 @@ use MyOnlineStore\EventSourcing\Event\Stream;
 
 interface AggregateFactory
 {
+    /**
+     * @psalm-param class-string<AggregateRoot> $aggregateName
+     */
     public function reconstituteFromHistory(
         string $aggregateName,
         AggregateRootId $aggregateRootId,

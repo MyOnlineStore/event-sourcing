@@ -21,9 +21,7 @@ final class FieldEncryptingConverter implements EventConverter
     }
 
     /**
-     * @return mixed[]
-     *
-     * @throws EncryptionFailed
+     * @inheritDoc
      */
     public function convertToArray(Event $event, StreamMetadata $streamMetadata): array
     {
@@ -46,16 +44,13 @@ final class FieldEncryptingConverter implements EventConverter
     }
 
     /**
-     * @param mixed[] $data
+     * @inheritDoc
      */
     public function createFromArray(string $eventName, array $data, StreamMetadata $streamMetadata): Event
     {
         if (!\is_subclass_of($eventName, FieldEncrypting::class)) {
             return $this->innerConverter->createFromArray($eventName, $data, $streamMetadata);
         }
-
-        /** @var FieldEncrypting $eventName */
-        /** @psalm-var class-string<FieldEncrypting> $eventName */
 
         foreach ($eventName::getEncryptingFields() as $field) {
             if (isset($data['payload'][$field])) {

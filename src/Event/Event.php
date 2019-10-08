@@ -32,5 +32,8 @@ interface Event
      */
     public function withMetadata(string $key, $value): Event;
 
+    /**
+     * @return static
+     */
     public function withVersion(int $version): Event;
 }

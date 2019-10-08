@@ -10,9 +10,8 @@ final class RandomBytesKeyGeneratorTest extends TestCase
 {
     public function testGenerate(): void
     {
-        $generator = new RandomBytesKeyGenerator(32);
+        $generator = new RandomBytesKeyGenerator(64);
 
-        // 32 bytes translates to 64 hex chars
-        self::assertRegExp('#^[0-9a-f]{64}$#', $generator->generate());
+        self::assertRegExp('#^[0-9a-zA-Z]{64}$#', $generator->generate());
     }
 }
