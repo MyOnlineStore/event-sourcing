@@ -6,11 +6,11 @@ namespace MyOnlineStore\EventSourcing\Encryption;
 final class RandomBytesKeyGenerator implements KeyGenerator
 {
     /** @var int */
-    private $size;
+    private $length;
 
-    public function __construct(int $size)
+    public function __construct(int $length)
     {
-        $this->size = $size;
+        $this->length = $length;
     }
 
     /**
@@ -18,6 +18,16 @@ final class RandomBytesKeyGenerator implements KeyGenerator
      */
     public function generate(): string
     {
-        return \bin2hex(\random_bytes($this->size));
+        return \substr(
+            \preg_replace(
+                '/[^A-Za-z0-9]/',
+                '',
+                \base64_encode(
+                    \random_bytes($this->length * 2)
+                )
+            ),
+            0,
+            $this->length
+        );
     }
 }

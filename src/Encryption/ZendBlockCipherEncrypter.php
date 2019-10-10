@@ -45,7 +45,7 @@ final class ZendBlockCipherEncrypter implements Encrypter
 
             return $this->blockCipher->encrypt($value);
         } catch (\Throwable $exception) {
-            throw EncryptionFailed::toDecrypt($exception);
+            throw EncryptionFailed::toEncrypt($exception);
         }
     }
 }

@@ -8,7 +8,7 @@ use MyOnlineStore\EventSourcing\Service\Assertion;
 final class ArraySerializableEventConverter implements EventConverter
 {
     /**
-     * @return mixed[]
+     * @inheritDoc
      */
     public function convertToArray(Event $event, StreamMetadata $streamMetadata): array
     {
@@ -20,7 +20,7 @@ final class ArraySerializableEventConverter implements EventConverter
     }
 
     /**
-     * @param mixed[] $data
+     * @inheritDoc
      */
     public function createFromArray(string $eventName, array $data, StreamMetadata $streamMetadata): Event
     {

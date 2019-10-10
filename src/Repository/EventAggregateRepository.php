@@ -22,9 +22,16 @@ final class EventAggregateRepository implements AggregateRepository
     /** @var string */
     private $streamName;
 
-    /** @var string */
+    /**
+     * @psalm-var class-string<AggregateRoot> $aggregateName
+     *
+     * @var string
+     */
     private $aggregateName;
 
+    /**
+     * @psalm-param class-string<AggregateRoot> $aggregateName
+     */
     public function __construct(
         AggregateFactory $aggregateFactory,
         EventRepository $eventRepository,
