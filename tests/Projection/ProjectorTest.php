@@ -7,48 +7,42 @@ use MyOnlineStore\EventSourcing\Aggregate\AggregateRoot;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Event\BaseEvent;
 use MyOnlineStore\EventSourcing\Projection\Projector;
-use MyOnlineStore\EventSourcing\Projection\ReadModel;
-use MyOnlineStore\EventSourcing\Projection\ReadModelRepository;
 use PHPUnit\Framework\TestCase;
 
 final class ProjectorTest extends TestCase
 {
+    /** @var \stdClass */
+    private $model;
+
     /** @var AggregateRoot */
     private $projector;
 
-    /** @var ReadModelRepository */
-    private $repository;
-
     protected function setUp(): void
     {
-        $this->repository = $this->createMock(ReadModelRepository::class);
-
-        // phpcs:disable
-        $this->projector = new class($this->repository) extends Projector
+        $this->model = new \stdClass();
+        $this->projector = new class($this->model) extends Projector
         {
+            /** @var \stdClass */
+            private $model;
+
+            public function __construct(\stdClass $model)
+            {
+                $this->model = $model;
+            }
+
             protected function applyBaseEvent(BaseEvent $event): void
             {
-                $model = $this->repository->load($event->getAggregateId());
-                $model->foo = $event->getPayload()['foo'];
-
-                $this->repository->save($model);
+                $this->model->foo = $event->getPayload()['foo'];
             }
         };
-        // phpcs:enable
     }
 
     public function testInvokeDispatchesEventToHandlerMethod(): void
     {
         $aggregateRootId = $this->createMock(AggregateRootId::class);
-        $model = $this->createMock(ReadModel::class);
-
-        $this->repository->expects(self::once())
-            ->method('load')
-            ->with($aggregateRootId)
-            ->willReturn($model);
-
-        $this->repository->expects(self::once())->method('save')->with($model);
 
         ($this->projector)(BaseEvent::occur($aggregateRootId, ['foo' => 'bar']));
+
+        self::assertSame('bar', $this->model->foo);
     }
 }
