@@ -17,7 +17,7 @@ final class BaseEventTest extends TestCase
         yield [
             [
                 'aggregate_id' => '7311db73-de57-4fb0-b8bc-84dc37296c1f',
-                'created_at' => '2019-08-21T14:31:30.374+02:00',
+                'created_at' => '2019-08-21T14:31:30.374870',
                 'metadata' => [],
                 'payload' => [],
                 'version' => 5,
@@ -26,16 +26,7 @@ final class BaseEventTest extends TestCase
         yield [
             [
                 'event_id' => '8311db73-de57-4fb0-b8bc-84dc37296c1e',
-                'created_at' => '2019-08-21T14:31:30.374+02:00',
-                'metadata' => [],
-                'payload' => [],
-                'version' => 5,
-            ],
-        ];
-        yield [
-            [
-                'event_id' => '8311db73-de57-4fb0-b8bc-84dc37296c1e',
-                'aggregate_id' => '7311db73-de57-4fb0-b8bc-84dc37296c1f',
+                'created_at' => '2019-08-21T14:31:30.374870',
                 'metadata' => [],
                 'payload' => [],
                 'version' => 5,
@@ -45,7 +36,7 @@ final class BaseEventTest extends TestCase
             [
                 'event_id' => '8311db73-de57-4fb0-b8bc-84dc37296c1e',
                 'aggregate_id' => '7311db73-de57-4fb0-b8bc-84dc37296c1f',
-                'created_at' => '2019-08-21T14:31:30.374+02:00',
+                'metadata' => [],
                 'payload' => [],
                 'version' => 5,
             ],
@@ -54,7 +45,16 @@ final class BaseEventTest extends TestCase
             [
                 'event_id' => '8311db73-de57-4fb0-b8bc-84dc37296c1e',
                 'aggregate_id' => '7311db73-de57-4fb0-b8bc-84dc37296c1f',
-                'created_at' => '2019-08-21T14:31:30.374+02:00',
+                'created_at' => '2019-08-21T14:31:30.374870',
+                'payload' => [],
+                'version' => 5,
+            ],
+        ];
+        yield [
+            [
+                'event_id' => '8311db73-de57-4fb0-b8bc-84dc37296c1e',
+                'aggregate_id' => '7311db73-de57-4fb0-b8bc-84dc37296c1f',
+                'created_at' => '2019-08-21T14:31:30.374870',
                 'metadata' => [],
                 'version' => 5,
             ],
@@ -63,7 +63,7 @@ final class BaseEventTest extends TestCase
             [
                 'event_id' => '8311db73-de57-4fb0-b8bc-84dc37296c1e',
                 'aggregate_id' => '7311db73-de57-4fb0-b8bc-84dc37296c1f',
-                'created_at' => '2019-08-21T14:31:30.374+02:00',
+                'created_at' => '2019-08-21T14:31:30.374870',
                 'metadata' => [],
                 'payload' => [],
             ],
@@ -87,7 +87,7 @@ final class BaseEventTest extends TestCase
             [
                 'event_id' => '8311db73-de57-4fb0-b8bc-84dc37296c1e',
                 'aggregate_id' => '7311db73-de57-4fb0-b8bc-84dc37296c1f',
-                'created_at' => '2019-08-21T14:31:30.374+02:00',
+                'created_at' => '2019-08-21T14:31:30.374870',
                 'payload' => ['foo' => 'bar'],
                 'metadata' => ['baz' => 'qux'],
                 'version' => 5,
@@ -96,7 +96,7 @@ final class BaseEventTest extends TestCase
 
         self::assertEquals(EventId::fromString('8311db73-de57-4fb0-b8bc-84dc37296c1e'), $event->getId());
         self::assertEquals(
-            \DateTimeImmutable::createFromFormat(\DATE_RFC3339_EXTENDED, '2019-08-21T14:31:30.374+02:00'),
+            \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s.u', '2019-08-21T14:31:30.374870'),
             $event->getCreatedAt()
         );
         self::assertSame(['foo' => 'bar'], $event->getPayload());
@@ -138,7 +138,7 @@ final class BaseEventTest extends TestCase
 
         self::assertSame($array['event_id'], (string) $event->getId());
         self::assertSame($array['aggregate_id'], '7311db73-de57-4fb0-b8bc-84dc37296c1f');
-        self::assertSame($array['created_at'], $event->getCreatedAt()->format(\DATE_RFC3339_EXTENDED));
+        self::assertSame($array['created_at'], $event->getCreatedAt()->format('Y-m-d\TH:i:s.u'));
         self::assertSame($array['metadata'], $event->getMetadata());
         self::assertSame($array['payload'], $event->getPayload());
         self::assertSame($array['version'], $event->getVersion());
