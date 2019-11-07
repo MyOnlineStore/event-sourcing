@@ -9,6 +9,8 @@ use MyOnlineStore\EventSourcing\Service\Assertion;
 
 class BaseEvent implements ArraySerializable
 {
+    private const CREATED_FORMAT = 'Y-m-d H:i:s.u';
+
     /** @var EventId */
     private $id;
 
@@ -41,6 +43,15 @@ class BaseEvent implements ArraySerializable
     /**
      * @param mixed[] $data
      *
+     * @psalm-param array{
+     *     event_id: string,
+     *     aggregate_id: string,
+     *     created_at: string,
+     *     metadata: array<array-key, mixed>,
+     *     payload: array<array-key, mixed>,
+     *     version: int
+     * } $data
+     *
      * @return static
      *
      * @throws AssertionFailed
@@ -56,7 +67,7 @@ class BaseEvent implements ArraySerializable
 
         $event = new static(AggregateRootId::fromString($data['aggregate_id']), $data['payload'], $data['metadata']);
         $event->id = EventId::fromString($data['event_id']);
-        $event->createdAt = \DateTimeImmutable::createFromFormat(\DATE_RFC3339_EXTENDED, $data['created_at']);
+        $event->createdAt = \DateTimeImmutable::createFromFormat(self::CREATED_FORMAT, $data['created_at']);
         $event->version = (int) $data['version'];
 
         return $event;
@@ -117,13 +128,22 @@ class BaseEvent implements ArraySerializable
 
     /**
      * @return mixed[]
+     *
+     * @psalm-return array{
+     *     event_id: string,
+     *     aggregate_id: string,
+     *     created_at: string,
+     *     metadata: array<array-key, mixed>,
+     *     payload: array<array-key, mixed>,
+     *     version: int
+     * }
      */
     public function toArray(): array
     {
         return [
             'event_id' => (string) $this->id,
             'aggregate_id' => (string) $this->aggregateId,
-            'created_at' => $this->createdAt->format(\DATE_RFC3339_EXTENDED),
+            'created_at' => $this->createdAt->format(self::CREATED_FORMAT),
             'metadata' => $this->metadata,
             'payload' => $this->payload,
             'version' => $this->version,
