@@ -9,7 +9,7 @@ use MyOnlineStore\EventSourcing\Service\Assertion;
 
 class BaseEvent implements ArraySerializable
 {
-    private const CREATED_FORMAT = 'Y-m-d\TH:i:s.u';
+    private const CREATED_FORMAT = 'Y-m-d H:i:s.u';
 
     /** @var EventId */
     private $id;
@@ -127,7 +127,7 @@ class BaseEvent implements ArraySerializable
     }
 
     /**
-     * @return string[]|int[]
+     * @return mixed[]
      *
      * @psalm-return array{
      *     event_id: string,
