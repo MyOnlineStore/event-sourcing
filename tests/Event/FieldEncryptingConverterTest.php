@@ -75,6 +75,27 @@ final class FieldEncryptingConverterTest extends TestCase
         );
     }
 
+    public function testConvertToArrayDoesNotEncryptEmptyFields(): void
+    {
+        /** @var Event|FieldEncrypting|MockInterface $event */
+        $event = \Mockery::mock(\sprintf('%s, %s', FieldEncrypting::class, Event::class));
+
+        $this->innerConverter->expects(self::once())
+            ->method('convertToArray')
+            ->with($event, $this->streamMetadata)
+            ->willReturn(['payload' => ['foo' => null, 'bar' => '']]);
+
+        $event->shouldReceive('getEncryptingFields')
+            ->andReturn(['foo', 'bar']);
+
+        $this->encrypter->expects(self::never())->method('encrypt');
+
+        self::assertSame(
+            ['payload' => ['foo' => null, 'bar' => '']],
+            $this->converter->convertToArray($event, $this->streamMetadata)
+        );
+    }
+
     public function testCreateFromArrayDoesNotDecryptIfNotFieldEncryptingEvent(): void
     {
         $eventName = Event::class;
