@@ -32,7 +32,7 @@ final class FieldEncryptingConverter implements EventConverter
         }
 
         foreach ($event::getEncryptingFields() as $field) {
-            if (isset($data['payload'][$field])) {
+            if (!empty($data['payload'][$field])) {
                 $data['payload'][$field] = $this->encrypter->encrypt(
                     $streamMetadata->getEncryptionKey(),
                     $data['payload'][$field]
