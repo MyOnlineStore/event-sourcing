@@ -11,6 +11,6 @@ abstract class Projector
     {
         $parts = \explode('\\', \get_class($event));
 
-        $this->{'apply'.\end($parts)}($event);
+        $this->{'apply' . \end($parts)}($event);
     }
 }

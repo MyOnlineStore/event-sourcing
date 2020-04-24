@@ -10,14 +10,9 @@ use MyOnlineStore\EventSourcing\Event\StreamMetadata;
 
 final class EncryptionKeyGeneratingEventRepository implements EventRepository
 {
-    /** @var EventRepository */
-    private $innerRepository;
-
-    /** @var KeyGenerator */
-    private $keyGenerator;
-
-    /** @var MetadataRepository */
-    private $metadataRepository;
+    private EventRepository $innerRepository;
+    private KeyGenerator $keyGenerator;
+    private MetadataRepository $metadataRepository;
 
     public function __construct(
         EventRepository $innerRepository,
@@ -46,5 +41,14 @@ final class EncryptionKeyGeneratingEventRepository implements EventRepository
     public function load(string $streamName, AggregateRootId $aggregateRootId, StreamMetadata $metadata): Stream
     {
         return $this->innerRepository->load($streamName, $aggregateRootId, $metadata);
+    }
+
+    public function loadAfterVersion(
+        string $streamName,
+        AggregateRootId $aggregateRootId,
+        int $aggregateVersion,
+        StreamMetadata $metadata
+    ): Stream {
+        return $this->innerRepository->loadAfterVersion($streamName, $aggregateRootId, $aggregateVersion, $metadata);
     }
 }

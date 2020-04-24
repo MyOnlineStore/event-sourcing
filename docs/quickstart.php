@@ -41,14 +41,9 @@ final class NameChanged extends BaseEvent
 
 final class Customer extends AggregateRoot
 {
-    /** @var CustomerId */
-    private $id;
-
-    /** @var string */
-    private $name;
-
-    /** @var DateTimeImmutable */
-    private $registeredAt;
+    private CustomerId $id;
+    private string $name;
+    private DateTimeImmutable $registeredAt;
 
     protected function __construct(CustomerId $id)
     {

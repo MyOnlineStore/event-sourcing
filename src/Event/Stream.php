@@ -8,8 +8,7 @@ namespace MyOnlineStore\EventSourcing\Event;
  */
 final class Stream extends \ArrayObject
 {
-    /** @var StreamMetadata */
-    private $metadata;
+    private StreamMetadata $metadata;
 
     /**
      * @param Event[] $events

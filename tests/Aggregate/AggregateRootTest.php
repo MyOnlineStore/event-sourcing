@@ -3,46 +3,23 @@ declare(strict_types=1);
 
 namespace MyOnlineStore\EventSourcing\Tests\Aggregate;
 
-use MyOnlineStore\EventSourcing\Aggregate\AggregateRoot;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Event\BaseEvent;
 use MyOnlineStore\EventSourcing\Event\Stream;
 use MyOnlineStore\EventSourcing\Event\StreamMetadata;
+use MyOnlineStore\EventSourcing\Tests\Mock\BaseAggregateRoot;
 use PHPUnit\Framework\TestCase;
 
 final class AggregateRootTest extends TestCase
 {
-    /** @var AggregateRoot */
-    private $aggregateRoot;
-
-    /** @var AggregateRootId */
-    private $aggregateRootId;
+    private BaseAggregateRoot $aggregateRoot;
+    private AggregateRootId $aggregateRootId;
 
     protected function setUp(): void
     {
-        $this->aggregateRootId = $this->createMock(AggregateRootId::class);
-
-        // phpcs:disable
-        $this->aggregateRoot = new class($this->aggregateRootId) extends AggregateRoot
-        {
-            public $foo;
-
-            public function __construct(AggregateRootId $aggregateRootId)
-            {
-                parent::__construct($aggregateRootId);
-            }
-
-            public function baseAction(): void
-            {
-                $this->recordThat(BaseEvent::occur($this->aggregateRootId, ['foo' => 'bar']));
-            }
-
-            protected function applyBaseEvent(BaseEvent $event): void
-            {
-                $this->foo = $event->getPayload()['foo'];
-            }
-        };
-        // phpcs:enable
+        $this->aggregateRoot = BaseAggregateRoot::createForTest(
+            $this->aggregateRootId = $this->createMock(AggregateRootId::class)
+        );
     }
 
     public function testInitialState(): void
@@ -64,9 +41,7 @@ final class AggregateRootTest extends TestCase
 
     public function testReconstituteFromHistory(): void
     {
-        /** @var AggregateRoot $aggregateName */
-        $aggregateName = \get_class($this->aggregateRoot);
-        $aggregateRoot = $aggregateName::reconstituteFromHistory(
+        $aggregateRoot = BaseAggregateRoot::reconstituteFromHistory(
             $this->aggregateRootId,
             new Stream(
                 [BaseEvent::occur($this->aggregateRootId, ['foo' => 'qux'])],

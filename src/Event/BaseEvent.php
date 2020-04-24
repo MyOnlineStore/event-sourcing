@@ -5,35 +5,28 @@ namespace MyOnlineStore\EventSourcing\Event;
 
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Exception\AssertionFailed;
-use MyOnlineStore\EventSourcing\Service\Assertion;
+use MyOnlineStore\EventSourcing\Service\Assert;
 
 class BaseEvent implements ArraySerializable
 {
     private const CREATED_FORMAT = 'Y-m-d H:i:s.u';
 
-    /** @var EventId */
-    private $id;
-
-    /** @var AggregateRootId */
-    private $aggregateId;
-
-    /** @var \DateTimeImmutable */
-    private $createdAt;
+    private EventId $id;
+    private AggregateRootId $aggregateId;
+    private \DateTimeImmutable $createdAt;
 
     /** @var mixed[] */
-    private $metadata;
+    private array $metadata;
 
     /** @var mixed[] */
-    private $payload;
-
-    /** @var int */
-    private $version;
+    private array $payload;
+    private int $version;
 
     /**
      * @param mixed[] $payload
      * @param mixed[] $metadata
      */
-    private function __construct(AggregateRootId $aggregateId, array $payload, array $metadata = [])
+    final private function __construct(AggregateRootId $aggregateId, array $payload, array $metadata = [])
     {
         $this->aggregateId = $aggregateId;
         $this->payload = $payload;
@@ -58,17 +51,18 @@ class BaseEvent implements ArraySerializable
      */
     public static function fromArray(array $data): Event
     {
-        Assertion::keyExists($data, 'event_id');
-        Assertion::keyExists($data, 'aggregate_id');
-        Assertion::keyExists($data, 'payload');
-        Assertion::keyExists($data, 'metadata');
-        Assertion::keyExists($data, 'created_at');
-        Assertion::keyExists($data, 'version');
+        Assert::keyExists($data, 'event_id');
+        Assert::keyExists($data, 'aggregate_id');
+        Assert::keyExists($data, 'payload');
+        Assert::keyExists($data, 'metadata');
+        Assert::keyExists($data, 'created_at');
+        Assert::keyExists($data, 'version');
 
         $event = new static(AggregateRootId::fromString($data['aggregate_id']), $data['payload'], $data['metadata']);
         $event->id = EventId::fromString($data['event_id']);
+        /** @psalm-suppress PossiblyFalsePropertyAssignmentValue */
         $event->createdAt = \DateTimeImmutable::createFromFormat(self::CREATED_FORMAT, $data['created_at']);
-        $event->version = (int) $data['version'];
+        $event->version = $data['version'];
 
         return $event;
     }

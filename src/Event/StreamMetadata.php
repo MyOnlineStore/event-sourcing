@@ -5,11 +5,11 @@ namespace MyOnlineStore\EventSourcing\Event;
 
 final class StreamMetadata
 {
-    /** @var mixed[] */
-    private $metadata;
+    /** @var array<string, string> */
+    private array $metadata;
 
     /**
-     * @param mixed[] $metadata
+     * @param array<string, string> $metadata
      */
     public function __construct(array $metadata)
     {
@@ -22,7 +22,7 @@ final class StreamMetadata
     }
 
     /**
-     * @return mixed[]
+     * @return array<string, string>
      */
     public function getMetadata(): array
     {

@@ -4,15 +4,14 @@ declare(strict_types=1);
 namespace MyOnlineStore\EventSourcing\Aggregate;
 
 use MyOnlineStore\EventSourcing\Exception\AssertionFailed;
-use MyOnlineStore\EventSourcing\Service\Assertion;
+use MyOnlineStore\EventSourcing\Service\Assert;
 use Ramsey\Uuid\Uuid;
 
 class AggregateRootId
 {
-    /** @var string */
-    private $id;
+    private string $id;
 
-    private function __construct(string $id)
+    final private function __construct(string $id)
     {
         $this->id = $id;
     }
@@ -24,7 +23,7 @@ class AggregateRootId
      */
     public static function fromString(string $aggregateRootId): AggregateRootId
     {
-        Assertion::uuid($aggregateRootId);
+        Assert::uuid($aggregateRootId);
 
         return new static($aggregateRootId);
     }
@@ -42,6 +41,11 @@ class AggregateRootId
     public function equals(AggregateRootId $comparator): bool
     {
         return $this->id === $comparator->id;
+    }
+
+    public function toString(): string
+    {
+        return $this->id;
     }
 
     public function __toString(): string

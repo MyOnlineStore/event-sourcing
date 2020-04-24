@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace MyOnlineStore\EventSourcing\Tests\Event;
 
-use Mockery\MockInterface;
 use MyOnlineStore\EventSourcing\Encryption\Encrypter;
 use MyOnlineStore\EventSourcing\Event\Event;
 use MyOnlineStore\EventSourcing\Event\EventConverter;
@@ -11,21 +10,17 @@ use MyOnlineStore\EventSourcing\Event\FieldEncrypting;
 use MyOnlineStore\EventSourcing\Event\FieldEncryptingConverter;
 use MyOnlineStore\EventSourcing\Event\StreamMetadata;
 use MyOnlineStore\EventSourcing\Exception\EncryptionFailed;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 final class FieldEncryptingConverterTest extends TestCase
 {
-    /** @var Encrypter */
-    private $encrypter;
-
-    /** @var FieldEncryptingConverter */
-    private $converter;
-
-    /** @var EventConverter */
-    private $innerConverter;
-
-    /** @var StreamMetadata */
-    private $streamMetadata;
+    /** @var Encrypter&MockObject */
+    private Encrypter $encrypter;
+    private FieldEncryptingConverter $converter;
+    /** @var EventConverter&MockObject */
+    private EventConverter $innerConverter;
+    private StreamMetadata $streamMetadata;
 
     protected function setUp(): void
     {
@@ -53,8 +48,8 @@ final class FieldEncryptingConverterTest extends TestCase
 
     public function testConvertToArrayEncryptsEncryptingEvents(): void
     {
-        /** @var Event|FieldEncrypting|MockInterface $event */
         $event = \Mockery::mock(\sprintf('%s, %s', FieldEncrypting::class, Event::class));
+        \assert($event instanceof Event && $event instanceof FieldEncrypting);
 
         $this->innerConverter->expects(self::once())
             ->method('convertToArray')
@@ -77,8 +72,8 @@ final class FieldEncryptingConverterTest extends TestCase
 
     public function testConvertToArrayDoesNotEncryptEmptyFields(): void
     {
-        /** @var Event|FieldEncrypting|MockInterface $event */
         $event = \Mockery::mock(\sprintf('%s, %s', FieldEncrypting::class, Event::class));
+        \assert($event instanceof Event && $event instanceof FieldEncrypting);
 
         $this->innerConverter->expects(self::once())
             ->method('convertToArray')
@@ -113,8 +108,8 @@ final class FieldEncryptingConverterTest extends TestCase
 
     public function testCreateFromArrayDecryptsEncryptingEvents(): void
     {
-        /** @var Event|FieldEncrypting|MockInterface $event */
         $event = \Mockery::mock(\sprintf('%s, %s', FieldEncrypting::class, Event::class));
+        \assert($event instanceof Event && $event instanceof FieldEncrypting);
         $eventName = \get_class($event);
 
         $event->shouldReceive('getEncryptingFields')
@@ -142,8 +137,8 @@ final class FieldEncryptingConverterTest extends TestCase
 
     public function testCreateFromArraySetsFieldToNullIfCantDecrypt(): void
     {
-        /** @var Event|FieldEncrypting|MockInterface $event */
         $event = \Mockery::mock(\sprintf('%s, %s', FieldEncrypting::class, Event::class));
+        \assert($event instanceof Event && $event instanceof FieldEncrypting);
         $eventName = \get_class($event);
 
         $event->shouldReceive('getEncryptingFields')
@@ -164,6 +159,30 @@ final class FieldEncryptingConverterTest extends TestCase
             $this->converter->createFromArray(
                 $eventName,
                 ['payload' => ['foo' => 'bar_encrypted']],
+                $this->streamMetadata
+            )
+        );
+    }
+
+    public function testCreateFromArraySkipsUnencryptedFields(): void
+    {
+        $event = \Mockery::mock(\sprintf('%s, %s', FieldEncrypting::class, Event::class));
+        \assert($event instanceof Event && $event instanceof FieldEncrypting);
+        $eventName = \get_class($event);
+
+        $event->shouldReceive('getEncryptingFields')->andReturn(['foo']);
+        $this->encrypter->expects(self::never())->method('decrypt');
+
+        $this->innerConverter->expects(self::once())
+            ->method('createFromArray')
+            ->with($eventName, ['payload' => ['bar' => 'bar_unencrypted']], $this->streamMetadata)
+            ->willReturn($event);
+
+        self::assertSame(
+            $event,
+            $this->converter->createFromArray(
+                $eventName,
+                ['payload' => ['bar' => 'bar_unencrypted']],
                 $this->streamMetadata
             )
         );

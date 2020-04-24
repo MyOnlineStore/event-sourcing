@@ -17,14 +17,9 @@ final class DispatchingEventRepositoryTest extends TestCase
 {
     use MockeryPHPUnitIntegration;
 
-    /** @var EventDispatcherInterface */
-    private $dispatcher;
-
-    /** @var EventRepository */
-    private $innerRepository;
-
-    /** @var DispatchingEventRepository */
-    private $repository;
+    private EventDispatcherInterface $dispatcher;
+    private EventRepository $innerRepository;
+    private DispatchingEventRepository $repository;
 
     protected function setUp(): void
     {
@@ -87,5 +82,31 @@ final class DispatchingEventRepositoryTest extends TestCase
         $this->dispatcher->shouldNotReceive('dispatch');
 
         self::assertSame($eventStream, $this->repository->load($streamName, $aggregateRootId, $metadata));
+    }
+
+    public function testLoadAfterVersionCallsInnerRepositoryWithoutDispatching(): void
+    {
+        $streamName = 'foo';
+        $aggregateRootId = $this->createMock(AggregateRootId::class);
+        $version = 12;
+        $eventStream = new Stream(
+            [
+                $event = $this->createMock(Event::class),
+                $event,
+            ],
+            $metadata = new StreamMetadata([])
+        );
+
+        $this->innerRepository->shouldReceive('loadAfterVersion')
+            ->once()
+            ->with($streamName, $aggregateRootId, $version, $metadata)
+            ->andReturn($eventStream);
+
+        $this->dispatcher->shouldNotReceive('dispatch');
+
+        self::assertSame(
+            $eventStream,
+            $this->repository->loadAfterVersion($streamName, $aggregateRootId, $version, $metadata)
+        );
     }
 }

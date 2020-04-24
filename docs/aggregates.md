@@ -35,8 +35,7 @@ final class NameChanged extends BaseEvent
 
 final class Customer extends AggregateRoot
 {
-    /** @var string */
-    private $name;
+    private string $name;
 
     public function changeName(string $name): void
     {

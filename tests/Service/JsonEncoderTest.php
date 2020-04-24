@@ -10,8 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 final class JsonEncoderTest extends TestCase
 {
-    /** @var Encoder */
-    private $encoder;
+    private Encoder $encoder;
 
     protected function setUp(): void
     {

@@ -13,11 +13,8 @@ use PHPUnit\Framework\TestCase;
 
 final class ArraySerializableEventConverterTest extends TestCase
 {
-    /** @var ArraySerializableEventConverter */
-    private $converter;
-
-    /** @var StreamMetadata */
-    private $streamMetadata;
+    private ArraySerializableEventConverter $converter;
+    private StreamMetadata $streamMetadata;
 
     protected function setUp(): void
     {
@@ -30,7 +27,7 @@ final class ArraySerializableEventConverterTest extends TestCase
         $data = [
             'event_id' => '8311db73-de57-4fb0-b8bc-84dc37296c1e',
             'aggregate_id' => '7311db73-de57-4fb0-b8bc-84dc37296c1f',
-            'created_at' => '2019-08-21T14:31:30.374+02:00',
+            'created_at' => '2019-08-21 14:31:30.374',
             'payload' => ['foo' => 'bar'],
             'metadata' => ['baz' => 'qux'],
             'version' => 5,
