@@ -9,11 +9,9 @@ use Ramsey\Uuid\Uuid;
 
 final class EventId
 {
-    private string $id;
-
-    private function __construct(string $id)
-    {
-        $this->id = $id;
+    private function __construct(
+        private string $id
+    ) {
     }
 
     /**

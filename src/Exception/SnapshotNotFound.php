@@ -9,6 +9,6 @@ final class SnapshotNotFound extends EventSourcingException
 {
     public static function withAggregateRootId(AggregateRootId $aggregateRootId): self
     {
-        return new self(\sprintf('Snapshot not found for aggregate "%s"', $aggregateRootId));
+        return new self(\sprintf('Snapshot not found for aggregate "%s"', $aggregateRootId->toString()));
     }
 }

@@ -9,36 +9,29 @@ use Ramsey\Uuid\Uuid;
 
 class AggregateRootId
 {
-    private string $id;
-
-    final private function __construct(string $id)
-    {
-        $this->id = $id;
+    final private function __construct(
+        private string $id
+    ) {
     }
 
     /**
-     * @return static
-     *
      * @throws AssertionFailed
      */
-    public static function fromString(string $aggregateRootId): AggregateRootId
+    public static function fromString(string $aggregateRootId): static
     {
         Assert::uuid($aggregateRootId);
 
         return new static($aggregateRootId);
     }
 
-    /**
-     * @return static
-     */
-    public static function generate(): AggregateRootId
+    public static function generate(): static
     {
         /** @noinspection PhpUnhandledExceptionInspection */
 
         return new static(Uuid::uuid4()->toString());
     }
 
-    public function equals(AggregateRootId $comparator): bool
+    public function equals(self $comparator): bool
     {
         return $this->id === $comparator->id;
     }

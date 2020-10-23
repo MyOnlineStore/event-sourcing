@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <psalm allowPhpStormGenerics="true"
        errorLevel="1"
+       resolveFromConfigFile="true"
        totallyTyped="true"
        usePhpDocMethodsWithoutMagicCall="true"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -8,14 +9,13 @@
        xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
 >
     <projectFiles>
-        <directory name="src" />
+        <directory name="src"/>
         <ignoreFiles>
-            <directory name="vendor" />
+            <directory name="vendor"/>
         </ignoreFiles>
     </projectFiles>
 
     <issueHandlers>
-        <ImplicitToStringCast errorLevel="suppress"/>
         <PropertyNotSetInConstructor errorLevel="suppress"/>
     </issueHandlers>
 

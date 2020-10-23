@@ -27,17 +27,15 @@ final class DBALMetadataRepository implements MetadataRepository
      */
     public function load(string $streamName, AggregateRootId $aggregateRootId): StreamMetadata
     {
+        /** @psalm-var array{metadata: string}|false $result */
         $result = $this->connection->fetchAssociative(
             'SELECT metadata FROM ' . $streamName . '_metadata WHERE aggregate_id = ?',
             [$aggregateRootId->toString()],
             ['string']
         );
 
-        /** @psalm-var array{metadata: string}|false $result */
-
-        $metadata = $result ? (array) $this->jsonEncoder->decode($result['metadata']) : [];
-
         /** @psalm-var array<string, string> $metadata */
+        $metadata = $result ? (array) $this->jsonEncoder->decode($result['metadata']) : [];
 
         return new StreamMetadata($metadata);
     }
