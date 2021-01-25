@@ -5,6 +5,7 @@ namespace MyOnlineStore\EventSourcing\Tests\Encryption;
 
 use Defuse\Crypto\Key;
 use MyOnlineStore\EventSourcing\Encryption\DefuseCryptoEncrypter;
+use MyOnlineStore\EventSourcing\Exception\EncryptionFailed;
 use PHPUnit\Framework\TestCase;
 
 final class DefuseCryptoEncrypterTest extends TestCase
@@ -25,5 +26,19 @@ final class DefuseCryptoEncrypterTest extends TestCase
 
         self::assertNotEmpty($encrypted);
         self::assertSame($value, $this->encrypter->decrypt($key, $encrypted));
+    }
+
+    public function testFailedToDecryptException(): void
+    {
+        $this->expectException(EncryptionFailed::class);
+
+        $this->encrypter->decrypt('', '');
+    }
+
+    public function testFailedToEncryptException(): void
+    {
+        $this->expectException(EncryptionFailed::class);
+
+        $this->encrypter->encrypt('', '');
     }
 }

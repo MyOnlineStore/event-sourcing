@@ -8,25 +8,27 @@ use Defuse\Crypto\Exception\BadFormatException;
 use Defuse\Crypto\Exception\EnvironmentIsBrokenException;
 use Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException;
 use Defuse\Crypto\Key;
+use MyOnlineStore\EventSourcing\Exception\EncryptionFailed;
 
 final class DefuseCryptoEncrypter implements Encrypter
 {
-    /**
-     * @throws BadFormatException
-     * @throws EnvironmentIsBrokenException
-     * @throws WrongKeyOrModifiedCiphertextException
-     */
     public function decrypt(string $key, string $value): string
     {
-        return Crypto::decrypt($value, Key::loadFromAsciiSafeString($key));
+        try {
+            return Crypto::decrypt($value, Key::loadFromAsciiSafeString($key));
+        } catch (BadFormatException | EnvironmentIsBrokenException | WrongKeyOrModifiedCiphertextException $exception) {
+        }
+
+        throw EncryptionFailed::toDecrypt($exception);
     }
 
-    /**
-     * @throws BadFormatException
-     * @throws EnvironmentIsBrokenException
-     */
     public function encrypt(string $key, string $value): string
     {
-        return Crypto::encrypt($value, Key::loadFromAsciiSafeString($key));
+        try {
+            return Crypto::encrypt($value, Key::loadFromAsciiSafeString($key));
+        } catch (BadFormatException | EnvironmentIsBrokenException $exception) {
+        }
+
+        throw EncryptionFailed::toEncrypt($exception);
     }
 }
