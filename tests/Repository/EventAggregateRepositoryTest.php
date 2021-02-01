@@ -16,23 +16,12 @@ use PHPUnit\Framework\TestCase;
 
 final class EventAggregateRepositoryTest extends TestCase
 {
-    /** @var AggregateFactory */
-    private $aggregateFactory;
-
-    /** @var EventRepository */
-    private $eventRepository;
-
-    /** @var EventAggregateRepository */
-    private $repository;
-
-    /** @var MetadataRepository */
-    private $metadataRepository;
-
-    /** @var string */
-    private $streamName;
-
-    /** @var string */
-    private $aggregateName;
+    private AggregateFactory $aggregateFactory;
+    private EventRepository $eventRepository;
+    private EventAggregateRepository $repository;
+    private MetadataRepository $metadataRepository;
+    private string $streamName;
+    private string $aggregateName;
 
     protected function setUp(): void
     {

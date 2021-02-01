@@ -4,13 +4,12 @@ declare(strict_types=1);
 namespace MyOnlineStore\EventSourcing\Event;
 
 use MyOnlineStore\EventSourcing\Exception\AssertionFailed;
-use MyOnlineStore\EventSourcing\Service\Assertion;
+use MyOnlineStore\EventSourcing\Service\Assert;
 use Ramsey\Uuid\Uuid;
 
 final class EventId
 {
-    /** @var string */
-    private $id;
+    private string $id;
 
     private function __construct(string $id)
     {
@@ -22,7 +21,7 @@ final class EventId
      */
     public static function fromString(string $id): self
     {
-        Assertion::uuid($id);
+        Assert::uuid($id);
 
         return new self($id);
     }

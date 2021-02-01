@@ -10,8 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 final class EmptyMetadataRepositoryTest extends TestCase
 {
-    /** @var EmptyMetadataRepository */
-    private $repository;
+    private EmptyMetadataRepository $repository;
 
     protected function setUp(): void
     {

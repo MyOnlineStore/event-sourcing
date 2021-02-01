@@ -3,18 +3,17 @@ declare(strict_types=1);
 
 namespace MyOnlineStore\EventSourcing\Tests\Aggregate;
 
-use MyOnlineStore\EventSourcing\Aggregate\AggregateRoot;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Aggregate\FQCNAggregateFactory;
 use MyOnlineStore\EventSourcing\Event\Stream;
 use MyOnlineStore\EventSourcing\Event\StreamMetadata;
 use MyOnlineStore\EventSourcing\Exception\AssertionFailed;
+use MyOnlineStore\EventSourcing\Tests\Mock\BaseAggregateRoot;
 use PHPUnit\Framework\TestCase;
 
 final class FQCNAggregateFactoryTest extends TestCase
 {
-    /** @var FQCNAggregateFactory */
-    private $factory;
+    private FQCNAggregateFactory $factory;
 
     protected function setUp(): void
     {
@@ -23,22 +22,14 @@ final class FQCNAggregateFactoryTest extends TestCase
 
     public function testReconstituteFromHistory(): void
     {
-        $aggregateRootId = $this->createMock(AggregateRootId::class);
-
-        // phpcs:disable
-        $aggregateRoot = new class($aggregateRootId) extends AggregateRoot
-        {
-            public function __construct(AggregateRootId $aggregateRootId)
-            {
-                parent::__construct($aggregateRootId);
-            }
-        };
-        // phpcs:enable
+        $aggregateRoot = BaseAggregateRoot::createForTest(
+            $aggregateRootId = $this->createMock(AggregateRootId::class)
+        );
 
         self::assertEquals(
             $aggregateRoot,
             $this->factory->reconstituteFromHistory(
-                \get_class($aggregateRoot),
+                BaseAggregateRoot::class,
                 $aggregateRootId,
                 new Stream([], new StreamMetadata([]))
             )

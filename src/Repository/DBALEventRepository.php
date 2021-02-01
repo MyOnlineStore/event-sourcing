@@ -5,8 +5,10 @@ namespace MyOnlineStore\EventSourcing\Repository;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\Exception as DriverException;
+use Doctrine\DBAL\Exception;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
+use MyOnlineStore\EventSourcing\Event\Event;
 use MyOnlineStore\EventSourcing\Event\EventConverter;
 use MyOnlineStore\EventSourcing\Event\Stream;
 use MyOnlineStore\EventSourcing\Event\StreamMetadata;
@@ -15,14 +17,9 @@ use MyOnlineStore\EventSourcing\Service\Encoder;
 
 final class DBALEventRepository implements EventRepository
 {
-    /** @var Connection */
-    private $connection;
-
-    /** @var EventConverter */
-    private $eventConverter;
-
-    /** @var Encoder */
-    private $jsonEncoder;
+    private Connection $connection;
+    private EventConverter $eventConverter;
+    private Encoder $jsonEncoder;
 
     public function __construct(
         Connection $connection,
@@ -36,8 +33,9 @@ final class DBALEventRepository implements EventRepository
 
     /**
      * @throws ConnectionException
-     * @throws DBALException
      * @throws EncodingFailed
+     * @throws DriverException
+     * @throws Exception
      */
     public function appendTo(string $streamName, AggregateRootId $aggregateRootId, Stream $eventStream): void
     {
@@ -47,7 +45,7 @@ final class DBALEventRepository implements EventRepository
             return;
         }
 
-        $insertStatement = 'INSERT INTO '.$streamName.' (
+        $insertStatement = 'INSERT INTO ' . $streamName . ' (
             event_id,
             event_name,
             aggregate_id,
@@ -55,7 +53,7 @@ final class DBALEventRepository implements EventRepository
             metadata,
             created_at,
             version
-        ) VALUES '.\implode(',', \array_fill(0, $eventCount, '(?, ?, ?, ?, ?, ?, ?)'));
+        ) VALUES ' . \implode(',', \array_fill(0, $eventCount, '(?, ?, ?, ?, ?, ?, ?)'));
 
         $data = [];
         $metadata = $eventStream->getMetadata();
@@ -80,23 +78,93 @@ final class DBALEventRepository implements EventRepository
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      * @throws EncodingFailed
      */
     public function load(string $streamName, AggregateRootId $aggregateRootId, StreamMetadata $metadata): Stream
     {
-        $result = $this->connection->executeQuery(
-            'SELECT * FROM '.$streamName.' WHERE aggregate_id = ? ORDER BY version ASC',
-            [(string) $aggregateRootId]
+        return $this->parseStream(
+            $aggregateRootId,
+            $this->connection->fetchAllAssociative(
+                'SELECT
+                    event_id,
+                    event_name,
+                    payload,
+                    metadata,
+                    created_at,
+                    version
+                FROM ' . $streamName . '
+                WHERE aggregate_id = ?
+                ORDER BY version ASC',
+                [(string) $aggregateRootId],
+                ['string']
+            ),
+            $metadata
         );
+    }
 
+    /**
+     * @throws Exception
+     * @throws EncodingFailed
+     */
+    public function loadAfterVersion(
+        string $streamName,
+        AggregateRootId $aggregateRootId,
+        int $aggregateVersion,
+        StreamMetadata $metadata
+    ): Stream {
+        return $this->parseStream(
+            $aggregateRootId,
+            $this->connection->fetchAllAssociative(
+                'SELECT
+                    event_id,
+                    event_name,
+                    payload,
+                    metadata,
+                    created_at,
+                    version
+                FROM ' . $streamName . '
+                WHERE aggregate_id = ? AND version > ?
+                ORDER BY version ASC',
+                [(string) $aggregateRootId, $aggregateVersion],
+                ['string', 'integer']
+            ),
+            $metadata
+        );
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $result
+     *
+     * @throws EncodingFailed
+     */
+    private function parseStream(
+        AggregateRootId $aggregateRootId,
+        array $result,
+        StreamMetadata $metadata
+    ): Stream {
         $events = [];
-        while (false !== $eventData = $result->fetch()) {
+        $stringAggregateRootId = (string) $aggregateRootId;
+
+        foreach ($result as $eventData) {
+            /**
+             * @psalm-var array{
+             *     event_name: class-string<Event>,
+             *     aggregate_id: string,
+             *     created_at: string,
+             *     event_id: string,
+             *     metadata: string,
+             *     payload: string,
+             *     version: int
+             * } $eventData
+             *
+             * @psalm-suppress ArgumentTypeCoercion
+             */
             $events[] = $this->eventConverter->createFromArray(
                 $eventData['event_name'],
                 [
                     'event_id' => $eventData['event_id'],
-                    'aggregate_id' => $eventData['aggregate_id'],
+                    'aggregate_id' => $stringAggregateRootId,
                     'payload' => $this->jsonEncoder->decode($eventData['payload']),
                     'metadata' => $this->jsonEncoder->decode($eventData['metadata']),
                     'created_at' => $eventData['created_at'],

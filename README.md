@@ -1,7 +1,8 @@
 # MyOnlineStore Event Sourcing
 
-[![Build Status](https://travis-ci.org/MyOnlineStore/event-sourcing.svg?branch=master)](https://travis-ci.org/MyOnlineStore/event-sourcing)
-[![Coverage Status](https://coveralls.io/repos/github/MyOnlineStore/event-sourcing/badge.svg?branch=master)](https://coveralls.io/github/MyOnlineStore/event-sourcing?branch=master)
+[![Build Status](https://github.com/MyOnlineStore/event-sourcing/workflows/CI/badge.svg)](https://github.com/MyOnlineStore/event-sourcing/actions)
+[![codecov.io](https://codecov.io/github/MyOnlineStore/event-sourcing/coverage.svg?branch=master)](https://codecov.io/github/MyOnlineStore/event-sourcing?branch=master)
+[![Type Coverage](https://shepherd.dev/github/MyOnlineStore/event-sourcing/coverage.svg)](https://shepherd.dev/github/MyOnlineStore/event-sourcing)
 
 
 ## Install

@@ -10,24 +10,13 @@ use MyOnlineStore\EventSourcing\Event\Stream;
 
 final class EventAggregateRepository implements AggregateRepository
 {
-    /** @var AggregateFactory */
-    private $aggregateFactory;
+    private AggregateFactory $aggregateFactory;
+    private EventRepository $eventRepository;
+    private MetadataRepository $metadataRepository;
+    private string $streamName;
 
-    /** @var EventRepository */
-    private $eventRepository;
-
-    /** @var MetadataRepository */
-    private $metadataRepository;
-
-    /** @var string */
-    private $streamName;
-
-    /**
-     * @psalm-var class-string<AggregateRoot> $aggregateName
-     *
-     * @var string
-     */
-    private $aggregateName;
+    /** @psalm-var class-string<AggregateRoot> $aggregateName */
+    private string $aggregateName;
 
     /**
      * @psalm-param class-string<AggregateRoot> $aggregateName

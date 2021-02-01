@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace MyOnlineStore\EventSourcing\Tests\Repository;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\ResultStatement;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Event\StreamMetadata;
 use MyOnlineStore\EventSourcing\Repository\DBALMetadataRepository;
@@ -13,14 +12,9 @@ use PHPUnit\Framework\TestCase;
 
 final class DBALMetadataRepositoryTest extends TestCase
 {
-    /** @var Connection */
-    private $connection;
-
-    /** @var Encoder */
-    private $jsonEncoder;
-
-    /** @var DBALMetadataRepository */
-    private $repository;
+    private Connection $connection;
+    private Encoder $jsonEncoder;
+    private DBALMetadataRepository $repository;
 
     protected function setUp(): void
     {
@@ -34,15 +28,11 @@ final class DBALMetadataRepositoryTest extends TestCase
     {
         $streamName = 'stream';
         $aggregateRootId = $this->createMock(AggregateRootId::class);
-        $aggregateRootId->method('__toString')->willReturn('agg-id');
+        $aggregateRootId->method('toString')->willReturn('agg-id');
 
         $this->connection->expects(self::once())
-            ->method('executeQuery')
-            ->with('SELECT metadata FROM '.$streamName.'_metadata WHERE aggregate_id = ?', ['agg-id'])
-            ->willReturn($resultStatement = $this->createMock(ResultStatement::class));
-
-        $resultStatement->expects(self::once())
-            ->method('fetch')
+            ->method('fetchAssociative')
+            ->with('SELECT metadata FROM ' . $streamName . '_metadata WHERE aggregate_id = ?', ['agg-id'])
             ->willReturn(
                 [
                     'aggregate_id' => 'agg-id',
@@ -65,15 +55,11 @@ final class DBALMetadataRepositoryTest extends TestCase
     {
         $streamName = 'stream';
         $aggregateRootId = $this->createMock(AggregateRootId::class);
-        $aggregateRootId->method('__toString')->willReturn('agg-id');
+        $aggregateRootId->method('toString')->willReturn('agg-id');
 
         $this->connection->expects(self::once())
-            ->method('executeQuery')
-            ->with('SELECT metadata FROM '.$streamName.'_metadata WHERE aggregate_id = ?', ['agg-id'])
-            ->willReturn($resultStatement = $this->createMock(ResultStatement::class));
-
-        $resultStatement->expects(self::once())
-            ->method('fetch')
+            ->method('fetchAssociative')
+            ->with('SELECT metadata FROM ' . $streamName . '_metadata WHERE aggregate_id = ?', ['agg-id'])
             ->willReturn(false);
 
         $this->jsonEncoder->expects(self::never())->method('decode');
@@ -88,7 +74,7 @@ final class DBALMetadataRepositoryTest extends TestCase
     {
         $streamName = 'stream';
         $aggregateRootId = $this->createMock(AggregateRootId::class);
-        $aggregateRootId->method('__toString')->willReturn('agg-id');
+        $aggregateRootId->method('toString')->willReturn('agg-id');
         $metadata = new StreamMetadata(['foo' => 'bar']);
 
         $this->jsonEncoder->expects(self::once())
@@ -97,13 +83,17 @@ final class DBALMetadataRepositoryTest extends TestCase
             ->willReturn('foobar_json');
 
         $this->connection->expects(self::once())
-            ->method('executeUpdate')
+            ->method('executeStatement')
             ->with(
-                'INSERT INTO '.$streamName.'_metadata (aggregate_id, metadata) VALUES (:aggregate_id, :metadata)
+                'INSERT INTO ' . $streamName . '_metadata (aggregate_id, metadata) VALUES (:aggregate_id, :metadata)
             ON CONFLICT (aggregate_id) DO UPDATE SET metadata = :metadata',
                 [
                     'aggregate_id' => 'agg-id',
                     'metadata' => 'foobar_json',
+                ],
+                [
+                    'aggregate_id' => 'string',
+                    'metadata' => 'string',
                 ]
             );
 

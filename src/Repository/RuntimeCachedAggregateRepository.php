@@ -9,10 +9,8 @@ use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 final class RuntimeCachedAggregateRepository implements AggregateRepository
 {
     /** @var AggregateRoot[] */
-    private $aggregates = [];
-
-    /** @var AggregateRepository */
-    private $innerRepository;
+    private array $aggregates = [];
+    private AggregateRepository $innerRepository;
 
     public function __construct(AggregateRepository $innerRepository)
     {

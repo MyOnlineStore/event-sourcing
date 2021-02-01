@@ -1,0 +1,46 @@
+name: CI
+
+on: push
+
+jobs:
+    test:
+        name: Test
+
+        runs-on: ubuntu-18.04
+
+        steps:
+            # Setup
+            -   name: Checkout
+                uses: actions/checkout@v2
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 7.4
+                    coverage: pcov
+                    tools: cs2pr
+                env:
+                    COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            -   name: Cache Dependencies
+                uses: actions/cache@v1
+                with:
+                    path: ~/.composer/cache
+                    key: php7.4-composer-${{ hashFiles('**/composer.lock') }}
+                    restore-keys: |
+                        php7.4-composer-
+            -   name: Install Dependencies
+                run: composer install --no-interaction --no-ansi --no-suggest
+
+            # Test
+            -   name: Codestyle
+                run: php vendor/bin/phpcs -q --report=checkstyle | cs2pr
+            -   name: Psalm
+                run: php vendor/bin/psalm --output-format=github --shepherd
+            -   name: PHPUnit Checks Matcher
+                run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+            -   name: Unit Tests
+                run: php vendor/bin/phpunit --coverage-clover=coverage.xml
+
+            -   name: Coverage Report
+                uses: codecov/codecov-action@v1
+                with:
+                    token: ${{ secrets.CODECOV_TOKEN }}

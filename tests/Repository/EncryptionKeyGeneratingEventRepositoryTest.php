@@ -14,17 +14,10 @@ use PHPUnit\Framework\TestCase;
 
 final class EncryptionKeyGeneratingEventRepositoryTest extends TestCase
 {
-    /** @var EventRepository */
-    private $innerRepository;
-
-    /** @var KeyGenerator */
-    private $keyGenerator;
-
-    /** @var MetadataRepository */
-    private $metadataRepository;
-
-    /** @var EncryptionKeyGeneratingEventRepository */
-    private $repository;
+    private EventRepository $innerRepository;
+    private KeyGenerator $keyGenerator;
+    private MetadataRepository $metadataRepository;
+    private EncryptionKeyGeneratingEventRepository $repository;
 
     protected function setUp(): void
     {
@@ -84,6 +77,24 @@ final class EncryptionKeyGeneratingEventRepositoryTest extends TestCase
         self::assertSame(
             $stream,
             $this->repository->load($streamName, $aggregateId, $streamMetadata)
+        );
+    }
+
+    public function testLoadAfterVersion(): void
+    {
+        $streamName = 'event_stream';
+        $aggregateId = $this->createMock(AggregateRootId::class);
+        $version = 12;
+        $stream = new Stream([], $streamMetadata = new StreamMetadata([]));
+
+        $this->innerRepository->expects(self::once())
+            ->method('loadAfterVersion')
+            ->with($streamName, $aggregateId, $version, $streamMetadata)
+            ->willReturn($stream);
+
+        self::assertSame(
+            $stream,
+            $this->repository->loadAfterVersion($streamName, $aggregateId, $version, $streamMetadata)
         );
     }
 }

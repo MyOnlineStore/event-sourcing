@@ -14,13 +14,14 @@ final class JsonEncoder implements Encoder
      */
     public function encode($value): string
     {
-        $json = \json_encode($value, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES | \JSON_PRESERVE_ZERO_FRACTION);
-
-        if (\JSON_ERROR_NONE !== $error = \json_last_error()) {
-            throw EncodingFailed::toEncode(\json_last_error_msg(), $error);
+        try {
+            return \json_encode(
+                $value,
+                \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES | \JSON_PRESERVE_ZERO_FRACTION
+            );
+        } catch (\JsonException $exception) {
+            throw EncodingFailed::fromPrevious($exception);
         }
-
-        return $json;
     }
 
     /**
@@ -30,12 +31,10 @@ final class JsonEncoder implements Encoder
      */
     public function decode(string $json)
     {
-        $data = \json_decode($json, true, 512, \JSON_BIGINT_AS_STRING);
-
-        if (\JSON_ERROR_NONE !== $error = \json_last_error()) {
-            throw EncodingFailed::toDecode(\json_last_error_msg(), $error);
+        try {
+            return \json_decode($json, true, 512, \JSON_THROW_ON_ERROR | \JSON_BIGINT_AS_STRING);
+        } catch (\JsonException $exception) {
+            throw EncodingFailed::fromPrevious($exception);
         }
-
-        return $data;
     }
 }

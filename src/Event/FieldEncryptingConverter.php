@@ -8,11 +8,8 @@ use MyOnlineStore\EventSourcing\Exception\EncryptionFailed;
 
 final class FieldEncryptingConverter implements EventConverter
 {
-    /** @var Encrypter */
-    private $encrypter;
-
-    /** @var EventConverter */
-    private $innerConverter;
+    private Encrypter $encrypter;
+    private EventConverter $innerConverter;
 
     public function __construct(Encrypter $encrypter, EventConverter $innerConverter)
     {
@@ -32,12 +29,14 @@ final class FieldEncryptingConverter implements EventConverter
         }
 
         foreach ($event::getEncryptingFields() as $field) {
-            if (!empty($data['payload'][$field])) {
-                $data['payload'][$field] = $this->encrypter->encrypt(
-                    $streamMetadata->getEncryptionKey(),
-                    $data['payload'][$field]
-                );
+            if (empty($data['payload'][$field])) {
+                continue;
             }
+
+            $data['payload'][$field] = $this->encrypter->encrypt(
+                $streamMetadata->getEncryptionKey(),
+                (string) $data['payload'][$field]
+            );
         }
 
         return $data;
@@ -53,15 +52,17 @@ final class FieldEncryptingConverter implements EventConverter
         }
 
         foreach ($eventName::getEncryptingFields() as $field) {
-            if (isset($data['payload'][$field])) {
-                try {
-                    $data['payload'][$field] = $this->encrypter->decrypt(
-                        $streamMetadata->getEncryptionKey(),
-                        $data['payload'][$field]
-                    );
-                } catch (EncryptionFailed $exception) {
-                    $data['payload'][$field] = null;
-                }
+            if (!isset($data['payload'][$field])) {
+                continue;
+            }
+
+            try {
+                $data['payload'][$field] = $this->encrypter->decrypt(
+                    $streamMetadata->getEncryptionKey(),
+                    (string) $data['payload'][$field]
+                );
+            } catch (EncryptionFailed $exception) {
+                $data['payload'][$field] = null;
             }
         }
 

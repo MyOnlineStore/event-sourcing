@@ -25,6 +25,7 @@ final class AggregateRootIdTest extends TestCase
         $aggregateRootId = AggregateRootId::fromString('8311db73-de57-4fb0-b8bc-84dc37296c1e');
 
         self::assertSame('8311db73-de57-4fb0-b8bc-84dc37296c1e', (string) $aggregateRootId);
+        self::assertSame('8311db73-de57-4fb0-b8bc-84dc37296c1e', $aggregateRootId->toString());
     }
 
     public function testFromStringWithInvalidUuid(): void

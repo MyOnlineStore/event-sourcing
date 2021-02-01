@@ -18,18 +18,19 @@
         "sort-packages": true
     },
     "require": {
-        "php": "^7.3",
+        "php": "^7.4",
         "ext-json": "*",
-        "beberlei/assert": "^3.2.3",
-        "doctrine/dbal": "^2.9.2",
-        "psr/event-dispatcher": "^1.0.0",
-        "ramsey/uuid": "^3.8.0",
-        "zendframework/zend-crypt": "^3.3.1"
+        "defuse/php-encryption": "^2.2",
+        "doctrine/dbal": "^2.12",
+        "psr/event-dispatcher": "^1.0",
+        "ramsey/uuid": "^3.9 || ^4.0",
+        "webmozart/assert": "^1.9"
     },
     "require-dev": {
-        "mockery/mockery": "^1.2.3",
-        "myonlinestore/coding-standard": "^1.1.2",
-        "phpunit/phpunit": "^8.3.4",
-        "vimeo/psalm": "^3.4.11"
+        "mockery/mockery": "^1.4",
+        "myonlinestore/coding-standard": "^3.0",
+        "phpunit/phpunit": "^9.5",
+        "psalm/plugin-phpunit": "^0.15",
+        "vimeo/psalm": "^4.4"
     }
 }

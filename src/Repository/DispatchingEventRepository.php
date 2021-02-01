@@ -10,11 +10,8 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 
 final class DispatchingEventRepository implements EventRepository
 {
-    /** @var EventDispatcherInterface */
-    private $dispatcher;
-
-    /** @var EventRepository */
-    private $innerRepository;
+    private EventDispatcherInterface $dispatcher;
+    private EventRepository $innerRepository;
 
     public function __construct(EventDispatcherInterface $dispatcher, EventRepository $innerRepository)
     {
@@ -34,5 +31,14 @@ final class DispatchingEventRepository implements EventRepository
     public function load(string $streamName, AggregateRootId $aggregateRootId, StreamMetadata $metadata): Stream
     {
         return $this->innerRepository->load($streamName, $aggregateRootId, $metadata);
+    }
+
+    public function loadAfterVersion(
+        string $streamName,
+        AggregateRootId $aggregateRootId,
+        int $aggregateVersion,
+        StreamMetadata $metadata
+    ): Stream {
+        return $this->innerRepository->loadAfterVersion($streamName, $aggregateRootId, $aggregateVersion, $metadata);
     }
 }

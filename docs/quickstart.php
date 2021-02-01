@@ -20,6 +20,11 @@ final class Registered extends BaseEvent
         return self::occur($customerId, ['name' => $name]);
     }
 
+    public function getCustomerId(): CustomerId
+    {
+        return CustomerId::fromString((string) $this->getId());
+    }
+
     public function getName(): string
     {
         return $this->getPayload()['name'];
@@ -41,21 +46,9 @@ final class NameChanged extends BaseEvent
 
 final class Customer extends AggregateRoot
 {
-    /** @var CustomerId */
-    private $id;
-
-    /** @var string */
-    private $name;
-
-    /** @var DateTimeImmutable */
-    private $registeredAt;
-
-    protected function __construct(CustomerId $id)
-    {
-        $this->id = $id;
-
-        parent::__construct($id);
-    }
+    private CustomerId $id;
+    private string $name;
+    private DateTimeImmutable $registeredAt;
 
     public function getId(): CustomerId
     {
@@ -92,6 +85,7 @@ final class Customer extends AggregateRoot
 
     protected function applyRegistered(Registered $event): void
     {
+        $this->id = $event->getCustomerId();
         $this->name = $event->getName();
         $this->registeredAt = $event->getCreatedAt();
     }

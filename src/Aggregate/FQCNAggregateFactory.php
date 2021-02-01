@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace MyOnlineStore\EventSourcing\Aggregate;
 
 use MyOnlineStore\EventSourcing\Event\Stream;
-use MyOnlineStore\EventSourcing\Service\Assertion;
+use MyOnlineStore\EventSourcing\Service\Assert;
 
 final class FQCNAggregateFactory implements AggregateFactory
 {
@@ -13,8 +13,9 @@ final class FQCNAggregateFactory implements AggregateFactory
         AggregateRootId $aggregateRootId,
         Stream $eventStream
     ): AggregateRoot {
-        Assertion::classExists($aggregateName);
-        Assertion::subclassOf($aggregateName, AggregateRoot::class);
+        Assert::classExists($aggregateName);
+        /** @psalm-suppress DocblockTypeContradiction */
+        Assert::subclassOf($aggregateName, AggregateRoot::class);
 
         /** @var AggregateRoot $aggregateName */
 

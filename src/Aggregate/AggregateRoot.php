@@ -8,16 +8,12 @@ use MyOnlineStore\EventSourcing\Event\Stream;
 
 abstract class AggregateRoot
 {
-    /** @var AggregateRootId */
-    protected $aggregateRootId;
-
+    protected AggregateRootId $aggregateRootId;
     /** @var Event[] */
-    protected $recordedEvents = [];
+    protected array $recordedEvents = [];
+    protected int $version = 0;
 
-    /** @var int */
-    protected $version = 0;
-
-    protected function __construct(AggregateRootId $aggregateRootId)
+    final protected function __construct(AggregateRootId $aggregateRootId)
     {
         $this->aggregateRootId = $aggregateRootId;
     }
@@ -59,7 +55,7 @@ abstract class AggregateRoot
         $this->version = $event->getVersion();
         $parts = \explode('\\', \get_class($event));
 
-        $this->{'apply'.\end($parts)}($event);
+        $this->{'apply' . \end($parts)}($event);
     }
 
     protected function recordThat(Event $event): void

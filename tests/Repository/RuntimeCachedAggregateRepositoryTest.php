@@ -11,11 +11,8 @@ use PHPUnit\Framework\TestCase;
 
 final class RuntimeCachedAggregateRepositoryTest extends TestCase
 {
-    /** @var AggregateRepository */
-    private $innerRepository;
-
-    /** @var RuntimeCachedAggregateRepository */
-    private $repository;
+    private AggregateRepository $innerRepository;
+    private RuntimeCachedAggregateRepository $repository;
 
     protected function setUp(): void
     {
