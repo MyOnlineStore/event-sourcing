@@ -25,6 +25,18 @@ final class EmptyMetadataRepositoryTest extends TestCase
         );
     }
 
+    public function testRemoveDoesNothing(): void
+    {
+        $aggregateId = $this->createMock(AggregateRootId::class);
+
+        $this->repository->remove('stream', $aggregateId);
+
+        self::assertEquals(
+            new StreamMetadata([]),
+            $this->repository->load('stream', $this->createMock(AggregateRootId::class))
+        );
+    }
+
     public function testSaveDoesNothing(): void
     {
         $aggregateId = $this->createMock(AggregateRootId::class);

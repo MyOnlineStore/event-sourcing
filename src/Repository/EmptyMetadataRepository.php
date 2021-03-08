@@ -13,6 +13,10 @@ final class EmptyMetadataRepository implements MetadataRepository
         return new StreamMetadata([]);
     }
 
+    public function remove(string $streamName, AggregateRootId $aggregateRootId): void
+    {
+    }
+
     public function save(string $streamName, AggregateRootId $aggregateRootId, StreamMetadata $metadata): void
     {
     }

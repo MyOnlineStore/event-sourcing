@@ -8,12 +8,17 @@ use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Event\StreamMetadata;
 use MyOnlineStore\EventSourcing\Repository\DBALMetadataRepository;
 use MyOnlineStore\EventSourcing\Service\Encoder;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 final class DBALMetadataRepositoryTest extends TestCase
 {
+    /** @var Connection&MockObject */
     private Connection $connection;
+
+    /** @var Encoder&MockObject */
     private Encoder $jsonEncoder;
+
     private DBALMetadataRepository $repository;
 
     protected function setUp(): void
@@ -32,7 +37,7 @@ final class DBALMetadataRepositoryTest extends TestCase
 
         $this->connection->expects(self::once())
             ->method('fetchAssociative')
-            ->with('SELECT metadata FROM ' . $streamName . '_metadata WHERE aggregate_id = ?', ['agg-id'])
+            ->with('SELECT metadata FROM stream_metadata WHERE aggregate_id = ?', ['agg-id'], ['string'])
             ->willReturn(
                 [
                     'aggregate_id' => 'agg-id',
@@ -59,7 +64,7 @@ final class DBALMetadataRepositoryTest extends TestCase
 
         $this->connection->expects(self::once())
             ->method('fetchAssociative')
-            ->with('SELECT metadata FROM ' . $streamName . '_metadata WHERE aggregate_id = ?', ['agg-id'])
+            ->with('SELECT metadata FROM stream_metadata WHERE aggregate_id = ?', ['agg-id'], ['string'])
             ->willReturn(false);
 
         $this->jsonEncoder->expects(self::never())->method('decode');
@@ -68,6 +73,23 @@ final class DBALMetadataRepositoryTest extends TestCase
             new StreamMetadata([]),
             $this->repository->load($streamName, $aggregateRootId)
         );
+    }
+
+    public function testRemove(): void
+    {
+        $streamName = 'stream';
+        $aggregateRootId = $this->createMock(AggregateRootId::class);
+        $aggregateRootId->method('toString')->willReturn('agg-id');
+
+        $this->connection->expects(self::once())
+            ->method('executeStatement')
+            ->with(
+                'DELETE FROM stream_metadata WHERE aggregate_id = ?',
+                ['agg-id'],
+                ['string']
+            );
+
+        $this->repository->remove($streamName, $aggregateRootId);
     }
 
     public function testSave(): void
@@ -85,7 +107,7 @@ final class DBALMetadataRepositoryTest extends TestCase
         $this->connection->expects(self::once())
             ->method('executeStatement')
             ->with(
-                'INSERT INTO ' . $streamName . '_metadata (aggregate_id, metadata) VALUES (:aggregate_id, :metadata)
+                'INSERT INTO stream_metadata (aggregate_id, metadata) VALUES (:aggregate_id, :metadata)
             ON CONFLICT (aggregate_id) DO UPDATE SET metadata = :metadata',
                 [
                     'aggregate_id' => 'agg-id',
