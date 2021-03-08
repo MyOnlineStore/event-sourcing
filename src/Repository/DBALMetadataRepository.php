@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace MyOnlineStore\EventSourcing\Repository;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Event\StreamMetadata;
 use MyOnlineStore\EventSourcing\Exception\EncodingFailed;
@@ -22,7 +22,7 @@ final class DBALMetadataRepository implements MetadataRepository
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      * @throws EncodingFailed
      */
     public function load(string $streamName, AggregateRootId $aggregateRootId): StreamMetadata
@@ -43,7 +43,19 @@ final class DBALMetadataRepository implements MetadataRepository
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
+     */
+    public function remove(string $streamName, AggregateRootId $aggregateRootId): void
+    {
+        $this->connection->executeStatement(
+            'DELETE FROM ' . $streamName . '_metadata WHERE aggregate_id = ?',
+            [$aggregateRootId->toString()],
+            ['string']
+        );
+    }
+
+    /**
+     * @throws Exception
      * @throws EncodingFailed
      */
     public function save(string $streamName, AggregateRootId $aggregateRootId, StreamMetadata $metadata): void
