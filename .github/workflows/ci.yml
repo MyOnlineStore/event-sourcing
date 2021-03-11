@@ -6,6 +6,11 @@ jobs:
     test:
         name: Test
 
+        strategy:
+            fail-fast: false
+            matrix:
+                php-version: ['7.4', '8.0']
+
         runs-on: ubuntu-18.04
 
         steps:
@@ -15,18 +20,17 @@ jobs:
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-version: 7.4
+                    php-version: ${{ matrix.php-version }}
                     coverage: pcov
                     tools: cs2pr
                 env:
                     COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             -   name: Cache Dependencies
-                uses: actions/cache@v1
+                uses: actions/cache@v2
                 with:
                     path: ~/.composer/cache
-                    key: php7.4-composer-${{ hashFiles('**/composer.lock') }}
-                    restore-keys: |
-                        php7.4-composer-
+                    key: php${{ matrix.php-version }}-composer-${{ hashFiles('**/composer.json') }}
+                    restore-keys: php${{ matrix.php-version }}-composer-
             -   name: Install Dependencies
                 run: composer install --no-interaction --no-ansi --no-suggest
 
