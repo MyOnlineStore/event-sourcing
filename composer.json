@@ -18,19 +18,19 @@
         "sort-packages": true
     },
     "require": {
-        "php": "^7.4",
+        "php": "^7.4 || ^8.0",
         "ext-json": "*",
         "defuse/php-encryption": "^2.2",
         "doctrine/dbal": "^2.12",
         "psr/event-dispatcher": "^1.0",
         "ramsey/uuid": "^3.9 || ^4.0",
-        "webmozart/assert": "^1.9"
+        "webmozart/assert": "^1.10"
     },
     "require-dev": {
         "mockery/mockery": "^1.4",
         "myonlinestore/coding-standard": "^3.0",
         "phpunit/phpunit": "^9.5",
         "psalm/plugin-phpunit": "^0.15",
-        "vimeo/psalm": "^4.4"
+        "vimeo/psalm": "^4.6"
     }
 }
