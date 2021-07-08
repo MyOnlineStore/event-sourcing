@@ -9,7 +9,7 @@ abstract class Projector
 {
     public function __invoke(Event $event): void
     {
-        $parts = \explode('\\', \get_class($event));
+        $parts = \explode('\\', $event::class);
 
         $this->{'apply' . \end($parts)}($event);
     }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace MyOnlineStore\EventSourcing\Tests\Repository;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Statement;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Event\Event;
 use MyOnlineStore\EventSourcing\Event\EventConverter;
@@ -85,18 +85,18 @@ final class DBALEventRepositoryTest extends TestCase
             ->with(self::isType('string'))
             ->willReturn($statement = $this->createMock(Statement::class));
         $statement->expects(self::once())
-            ->method('execute')
+            ->method('executeStatement')
             ->with(
                 [
                     'event1a',
-                    \get_class($event1),
+                    $event1::class,
                     'event1f',
                     'event1b_json',
                     'event1c_json',
                     'event1d',
                     'event1e',
                     'event2a',
-                    \get_class($event2),
+                    $event2::class,
                     'event2f',
                     'event2b_json',
                     'event2c_json',

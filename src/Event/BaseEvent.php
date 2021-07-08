@@ -15,16 +15,16 @@ class BaseEvent implements ArraySerializable
     private AggregateRootId $aggregateId;
     private \DateTimeImmutable $createdAt;
 
-    /** @var mixed[] */
+    /** @var array<string, scalar|null> */
     private array $metadata;
 
-    /** @var mixed[] */
+    /** @var array<string, scalar|null> */
     private array $payload;
     private int $version;
 
     /**
-     * @param mixed[] $payload
-     * @param mixed[] $metadata
+     * @param array<string, scalar|null> $payload
+     * @param array<string, scalar|null> $metadata
      */
     final private function __construct(AggregateRootId $aggregateId, array $payload, array $metadata = [])
     {
@@ -34,14 +34,14 @@ class BaseEvent implements ArraySerializable
     }
 
     /**
-     * @param mixed[] $data
+     * @param array<string, scalar|null> $data
      *
      * @psalm-param array{
      *     event_id: string,
      *     aggregate_id: string,
      *     created_at: string,
-     *     metadata: array<array-key, mixed>,
-     *     payload: array<array-key, mixed>,
+     *     metadata: array<string, scalar|null>,
+     *     payload: array<string, scalar|null>,
      *     version: int
      * } $data
      *
@@ -68,8 +68,8 @@ class BaseEvent implements ArraySerializable
     }
 
     /**
-     * @param mixed[] $payload
-     * @param mixed[] $metadata
+     * @param array<string, scalar|null> $payload
+     * @param array<string, scalar|null> $metadata
      *
      * @return static
      */
@@ -100,7 +100,7 @@ class BaseEvent implements ArraySerializable
     }
 
     /**
-     * @return mixed[]
+     * @return array<string, scalar|null>
      */
     public function getMetadata(): array
     {
@@ -108,7 +108,7 @@ class BaseEvent implements ArraySerializable
     }
 
     /**
-     * @return mixed[]
+     * @return array<string, scalar|null>
      */
     public function getPayload(): array
     {
@@ -121,14 +121,14 @@ class BaseEvent implements ArraySerializable
     }
 
     /**
-     * @return mixed[]
+     * @return array<string, scalar|null>
      *
      * @psalm-return array{
      *     event_id: string,
      *     aggregate_id: string,
      *     created_at: string,
-     *     metadata: array<array-key, mixed>,
-     *     payload: array<array-key, mixed>,
+     *     metadata: array<string, scalar|null>,
+     *     payload: array<string, scalar|null>,
      *     version: int
      * }
      */
@@ -145,11 +145,9 @@ class BaseEvent implements ArraySerializable
     }
 
     /**
-     * @param mixed $value
-     *
-     * @return static
+     * @psalm-param scalar|null $value
      */
-    public function withMetadata(string $key, $value): Event
+    public function withMetadata(string $key, mixed $value): static
     {
         $event = clone $this;
         $event->metadata[$key] = $value;
@@ -157,7 +155,7 @@ class BaseEvent implements ArraySerializable
         return $event;
     }
 
-    public function withVersion(int $version): Event
+    public function withVersion(int $version): static
     {
         $event = clone $this;
         $event->version = $version;

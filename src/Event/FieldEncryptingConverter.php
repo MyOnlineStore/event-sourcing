@@ -61,7 +61,7 @@ final class FieldEncryptingConverter implements EventConverter
                     $streamMetadata->getEncryptionKey(),
                     (string) $data['payload'][$field]
                 );
-            } catch (EncryptionFailed $exception) {
+            } catch (EncryptionFailed) {
                 $data['payload'][$field] = null;
             }
         }

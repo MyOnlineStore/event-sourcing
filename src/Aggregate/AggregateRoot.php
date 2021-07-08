@@ -53,7 +53,7 @@ abstract class AggregateRoot
     protected function apply(Event $event): void
     {
         $this->version = $event->getVersion();
-        $parts = \explode('\\', \get_class($event));
+        $parts = \explode('\\', $event::class);
 
         $this->{'apply' . \end($parts)}($event);
     }

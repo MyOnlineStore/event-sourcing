@@ -110,7 +110,7 @@ final class FieldEncryptingConverterTest extends TestCase
     {
         $event = \Mockery::mock(\sprintf('%s, %s', FieldEncrypting::class, Event::class));
         \assert($event instanceof Event && $event instanceof FieldEncrypting);
-        $eventName = \get_class($event);
+        $eventName = $event::class;
 
         $event->shouldReceive('getEncryptingFields')
             ->andReturn(['foo']);
@@ -139,7 +139,7 @@ final class FieldEncryptingConverterTest extends TestCase
     {
         $event = \Mockery::mock(\sprintf('%s, %s', FieldEncrypting::class, Event::class));
         \assert($event instanceof Event && $event instanceof FieldEncrypting);
-        $eventName = \get_class($event);
+        $eventName = $event::class;
 
         $event->shouldReceive('getEncryptingFields')
             ->andReturn(['foo']);
@@ -168,7 +168,7 @@ final class FieldEncryptingConverterTest extends TestCase
     {
         $event = \Mockery::mock(\sprintf('%s, %s', FieldEncrypting::class, Event::class));
         \assert($event instanceof Event && $event instanceof FieldEncrypting);
-        $eventName = \get_class($event);
+        $eventName = $event::class;
 
         $event->shouldReceive('getEncryptingFields')->andReturn(['foo']);
         $this->encrypter->expects(self::never())->method('decrypt');

@@ -6,28 +6,28 @@ namespace MyOnlineStore\EventSourcing\Event;
 interface EventConverter
 {
     /**
-     * @return mixed[]
+     * @return array<string, scalar|null>
      *
      * @psalm-return array{
      *     aggregate_id: string,
      *     created_at: string,
      *     event_id: string,
-     *     metadata: array<array-key, mixed>,
-     *     payload: array<array-key, mixed>,
+     *     metadata: array<string, scalar|null>,
+     *     payload: array<string, scalar|null>,
      *     version: int
      * }
      */
     public function convertToArray(Event $event, StreamMetadata $streamMetadata): array;
 
     /**
-     * @param mixed[] $data
+     * @param array<string, scalar|null> $data
      *
      * @psalm-param array{
      *     aggregate_id: string,
      *     created_at: string,
      *     event_id: string,
-     *     metadata: array<array-key, mixed>,
-     *     payload: array<array-key, mixed>,
+     *     metadata: array<string, scalar|null>,
+     *     payload: array<string, scalar|null>,
      *     version: int
      * } $data
      * @psalm-param class-string<Event> $eventName
