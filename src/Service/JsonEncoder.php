@@ -8,11 +8,9 @@ use MyOnlineStore\EventSourcing\Exception\EncodingFailed;
 final class JsonEncoder implements Encoder
 {
     /**
-     * @param mixed $value
-     *
      * @throws EncodingFailed
      */
-    public function encode($value): string
+    public function encode(mixed $value): string
     {
         try {
             return \json_encode(
@@ -25,14 +23,12 @@ final class JsonEncoder implements Encoder
     }
 
     /**
-     * @return mixed
-     *
      * @throws EncodingFailed
      */
-    public function decode(string $json)
+    public function decode(string $value): mixed
     {
         try {
-            return \json_decode($json, true, 512, \JSON_THROW_ON_ERROR | \JSON_BIGINT_AS_STRING);
+            return \json_decode($value, true, 512, \JSON_THROW_ON_ERROR | \JSON_BIGINT_AS_STRING);
         } catch (\JsonException $exception) {
             throw EncodingFailed::fromPrevious($exception);
         }

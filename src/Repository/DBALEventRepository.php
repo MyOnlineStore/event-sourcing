@@ -62,7 +62,7 @@ final class DBALEventRepository implements EventRepository
             $eventData = $this->eventConverter->convertToArray($event, $metadata);
 
             $data[] = $eventData['event_id'];
-            $data[] = \get_class($event);
+            $data[] = $event::class;
             $data[] = $eventData['aggregate_id'];
             $data[] = $this->jsonEncoder->encode($eventData['payload']);
             $data[] = $this->jsonEncoder->encode($eventData['metadata']);
@@ -73,7 +73,7 @@ final class DBALEventRepository implements EventRepository
         // @todo Add concurrency resolver
 
         $this->connection->beginTransaction();
-        $this->connection->prepare($insertStatement)->execute($data);
+        $this->connection->prepare($insertStatement)->executeStatement($data);
         $this->connection->commit();
     }
 

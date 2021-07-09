@@ -8,16 +8,12 @@ use MyOnlineStore\EventSourcing\Exception\EncodingFailed;
 interface Encoder
 {
     /**
-     * @param mixed $value
-     *
      * @throws EncodingFailed
      */
-    public function encode($value): string;
+    public function encode(mixed $value): string;
 
     /**
-     * @return mixed
-     *
      * @throws EncodingFailed
      */
-    public function decode(string $value);
+    public function decode(string $value): mixed;
 }

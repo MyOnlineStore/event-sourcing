@@ -14,26 +14,21 @@ interface Event
     public function getId(): EventId;
 
     /**
-     * @return mixed[]
+     * @return array<string, scalar|null>
      */
     public function getMetadata(): array;
 
     /**
-     * @return mixed[]
+     * @return array<string, scalar|null>
      */
     public function getPayload(): array;
 
     public function getVersion(): int;
 
     /**
-     * @param mixed $value
-     *
-     * @return static
+     * @psalm-param scalar|null $value
      */
-    public function withMetadata(string $key, $value): Event;
+    public function withMetadata(string $key, mixed $value): static;
 
-    /**
-     * @return static
-     */
-    public function withVersion(int $version): Event;
+    public function withVersion(int $version): static;
 }
