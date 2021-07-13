@@ -28,6 +28,9 @@ will automatically generate and save a key to encrypt the specified event payloa
 A `DispatchingEventRepository` decorator is available, which uses a `Psr\EventDispatcher\EventDispatcherInterface` to
 dispatch events to any available listener that is not part of the aggregate.
 
+`SymfonyMessengerEventRepository` is similar to `DispatchingEventRepository`, but uses
+`Symfony\Component\Messenger\MessageBusInterface` to dispatch the events to a message bus.
+
 
 ## MetadataRepository
 
