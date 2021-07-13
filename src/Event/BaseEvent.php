@@ -7,6 +7,9 @@ use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Exception\AssertionFailed;
 use MyOnlineStore\EventSourcing\Service\Assert;
 
+/**
+ * @psalm-immutable
+ */
 class BaseEvent implements ArraySerializable
 {
     private const CREATED_FORMAT = 'Y-m-d H:i:s.u';
@@ -48,6 +51,8 @@ class BaseEvent implements ArraySerializable
      * @return static
      *
      * @throws AssertionFailed
+     *
+     * @psalm-pure
      */
     public static function fromArray(array $data): Event
     {
@@ -72,6 +77,8 @@ class BaseEvent implements ArraySerializable
      * @param array<string, scalar|null> $metadata
      *
      * @return static
+     *
+     * @psalm-pure
      */
     public static function occur(AggregateRootId $aggregateId, array $payload, array $metadata = []): Event
     {

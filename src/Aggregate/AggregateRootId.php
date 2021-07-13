@@ -7,6 +7,9 @@ use MyOnlineStore\EventSourcing\Exception\AssertionFailed;
 use MyOnlineStore\EventSourcing\Service\Assert;
 use Ramsey\Uuid\Uuid;
 
+/**
+ * @psalm-immutable
+ */
 class AggregateRootId
 {
     final private function __construct(
@@ -16,6 +19,8 @@ class AggregateRootId
 
     /**
      * @throws AssertionFailed
+     *
+     * @psalm-pure
      */
     public static function fromString(string $aggregateRootId): static
     {
@@ -24,10 +29,15 @@ class AggregateRootId
         return new static($aggregateRootId);
     }
 
+    /**
+     * @psalm-pure
+     */
     public static function generate(): static
     {
-        /** @noinspection PhpUnhandledExceptionInspection */
-
+        /**
+         * @noinspection PhpUnhandledExceptionInspection
+         * @psalm-suppress ImpureMethodCall
+         */
         return new static(Uuid::uuid4()->toString());
     }
 
