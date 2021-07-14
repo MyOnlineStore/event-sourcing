@@ -11,14 +11,15 @@ newer events to the aggregate to get to the most recent state.
 
 The example below demonstrates how an event is created within an aggregate and how it is handled. Important is that
 within the creation method (`changeName` in the example), no state changed occur. State of the aggregate is only changed
-in event handlers. An event handler should be named after the event, eg `apply[EventName]`. The event handlers are
-called when loading an aggregate from storage (see [aggregate factory](#aggregate-factory)), the creation methods are
-not.
+in event handlers. An event handler must have a `Listener` attribute. You may add attributes for multiple events to a
+single handler, eg have a handler that handles multiple events. The event handlers are called when loading an aggregate
+from storage (see [aggregate factory](#aggregate-factory)), the creation methods are not.
 
 ```php
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRoot;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Event\BaseEvent;
+use MyOnlineStore\EventSourcing\Listener\Attribute\Listener;
 
 final class NameChanged extends BaseEvent
 {
@@ -42,7 +43,8 @@ final class Customer extends AggregateRoot
         $this->recordThat(NameChanged::byCustomer($this->aggregateRootId, $name));
     }
 
-    protected function applyNameChanged(NameChanged $event): void
+    #[Listener(NameChanged::class)]
+    protected function nameChanged(NameChanged $event): void
     {
         $this->name = $event->getName();
     }

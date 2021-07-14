@@ -37,7 +37,7 @@ final class DBALMetadataRepositoryTest extends TestCase
 
         $this->connection->expects(self::once())
             ->method('fetchAssociative')
-            ->with('SELECT metadata FROM stream_metadata WHERE aggregate_id = ?', ['agg-id'], ['string'])
+            ->with('SELECT metadata FROM ' . $streamName . '_metadata WHERE aggregate_id = ?', ['agg-id'])
             ->willReturn(
                 [
                     'aggregate_id' => 'agg-id',
@@ -64,7 +64,7 @@ final class DBALMetadataRepositoryTest extends TestCase
 
         $this->connection->expects(self::once())
             ->method('fetchAssociative')
-            ->with('SELECT metadata FROM stream_metadata WHERE aggregate_id = ?', ['agg-id'], ['string'])
+            ->with('SELECT metadata FROM ' . $streamName . '_metadata WHERE aggregate_id = ?', ['agg-id'])
             ->willReturn(false);
 
         $this->jsonEncoder->expects(self::never())->method('decode');
@@ -107,7 +107,7 @@ final class DBALMetadataRepositoryTest extends TestCase
         $this->connection->expects(self::once())
             ->method('executeStatement')
             ->with(
-                'INSERT INTO stream_metadata (aggregate_id, metadata) VALUES (:aggregate_id, :metadata)
+                'INSERT INTO ' . $streamName . '_metadata (aggregate_id, metadata) VALUES (:aggregate_id, :metadata)
             ON CONFLICT (aggregate_id) DO UPDATE SET metadata = :metadata',
                 [
                     'aggregate_id' => 'agg-id',

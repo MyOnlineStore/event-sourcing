@@ -6,6 +6,7 @@ namespace MyOnlineStore\EventSourcing\Tests\Mock;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Aggregate\SnapshottingAggregateRoot;
 use MyOnlineStore\EventSourcing\Event\BaseEvent;
+use MyOnlineStore\EventSourcing\Listener\Attribute\Listener;
 
 final class BaseSnapshottingAggregateRoot extends SnapshottingAggregateRoot
 {
@@ -21,6 +22,7 @@ final class BaseSnapshottingAggregateRoot extends SnapshottingAggregateRoot
         $this->recordThat(BaseEvent::occur($this->aggregateRootId, ['foo' => 'bar']));
     }
 
+    #[Listener(BaseEvent::class)]
     protected function applyBaseEvent(BaseEvent $event): void
     {
         $this->foo = $event->getPayload()['foo'];

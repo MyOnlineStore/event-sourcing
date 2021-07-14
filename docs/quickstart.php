@@ -2,12 +2,13 @@
 declare(strict_types=1);
 
 /**
- * Quick start example that shows basic usage
+ * Quick start example that demonstrates basic usage
  */
 
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRoot;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Event\BaseEvent;
+use MyOnlineStore\EventSourcing\Listener\Attribute\Listener;
 
 final class CustomerId extends AggregateRootId
 {
@@ -78,15 +79,17 @@ final class Customer extends AggregateRoot
         $this->recordThat(NameChanged::byCustomer($this->id, $name));
     }
 
-    protected function applyNameChanged(NameChanged $event): void
+    #[Listener(NameChanged::class)]
+    #[Listener(Registered::class)]
+    protected function nameChanged(NameChanged|Registered $event): void
     {
         $this->name = $event->getName();
     }
 
-    protected function applyRegistered(Registered $event): void
+    #[Listener(Registered::class)]
+    protected function registered(Registered $event): void
     {
         $this->id = $event->getCustomerId();
-        $this->name = $event->getName();
         $this->registeredAt = $event->getCreatedAt();
     }
 }

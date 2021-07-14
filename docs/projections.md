@@ -11,13 +11,14 @@ because every implementation will be very specific for a given `ReadModel`. The 
 `ReadModelNotFound` exception when a model can not be found.
 
 To create, update and delete read models, a basic `Projector` is available that can be extended. It is an event listener
-that can be used together with the `DispatchingEventRepository`. A `ReadModelRepository` implementation is required as
-constructor argument and event handlers must be defined similar to the `AggregateRoot`. Basic usage can be seen in the
-next example, using the `NameChanged` event as defined in [Aggregates](aggregates.md):
+that can be used together with the `DispatchingEventRepository`. Event handlers can be defined similar to how it is done
+in the `AggregateRoot`. Basic usage can be seen in the next example, using the `NameChanged` event as defined in
+[Aggregates](aggregates.md):
 
 ```php
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Exception\ReadModelNotFound;
+use MyOnlineStore\EventSourcing\Listener\Attribute\Listener;
 use MyOnlineStore\EventSourcing\Projection\Projector;
 
 final class CustomerInfoReadModel implements ReadModel
@@ -36,7 +37,8 @@ final class CustomerInfoReadModel implements ReadModel
 
 final class CustomerInfoProjector extends Projector
 {
-    protected function applyNameChanged(NameChanged $event)
+    #[Listener(NameChanged::class)]
+    protected function nameChanged(NameChanged $event)
     {
         try {
             $model = $this->repository->load($event->getAggregateId());

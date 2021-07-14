@@ -56,7 +56,7 @@ final class SnapshottingAggregateRepository implements AggregateRepository
                     $this->metadataRepository->load($this->streamName, $aggregateRootId)
                 )
             );
-        } catch (SnapshotNotFound $exception) {
+        } catch (SnapshotNotFound) {
         }
 
         return $this->innerRepository->load($aggregateRootId);

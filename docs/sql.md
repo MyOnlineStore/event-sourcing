@@ -28,3 +28,13 @@ CREATE TABLE event_stream_metadata (
     metadata JSONB NOT NULL
 );
 ```
+
+
+## SnapshotRepository
+```postgresql
+CREATE TABLE event_stream_snapshot (
+    aggregate_id UUID PRIMARY KEY,
+    version INT,
+    state TEXT NOT NULL
+);
+```

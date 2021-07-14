@@ -5,9 +5,12 @@ namespace MyOnlineStore\EventSourcing\Aggregate;
 
 use MyOnlineStore\EventSourcing\Event\Event;
 use MyOnlineStore\EventSourcing\Event\Stream;
+use MyOnlineStore\EventSourcing\Listener\AttributeListenerAware;
 
 abstract class AggregateRoot
 {
+    use AttributeListenerAware;
+
     protected AggregateRootId $aggregateRootId;
     /** @var Event[] */
     protected array $recordedEvents = [];
@@ -39,7 +42,7 @@ abstract class AggregateRoot
         return $pending;
     }
 
-    public static function reconstituteFromHistory(AggregateRootId $aggregateRootId, Stream $eventStream): AggregateRoot
+    public static function reconstituteFromHistory(AggregateRootId $aggregateRootId, Stream $eventStream): static
     {
         $instance = new static($aggregateRootId);
 
@@ -53,9 +56,10 @@ abstract class AggregateRoot
     protected function apply(Event $event): void
     {
         $this->version = $event->getVersion();
-        $parts = \explode('\\', $event::class);
 
-        $this->{'apply' . \end($parts)}($event);
+        foreach ($this->getListeners($event::class) as $listener) {
+            $listener($event);
+        }
     }
 
     protected function recordThat(Event $event): void
