@@ -7,6 +7,9 @@ use MyOnlineStore\EventSourcing\Exception\AssertionFailed;
 use MyOnlineStore\EventSourcing\Service\Assert;
 use Ramsey\Uuid\Uuid;
 
+/**
+ * @psalm-immutable
+ */
 final class EventId
 {
     private function __construct(
@@ -16,6 +19,8 @@ final class EventId
 
     /**
      * @throws AssertionFailed
+     *
+     * @psalm-pure
      */
     public static function fromString(string $id): self
     {
@@ -24,10 +29,15 @@ final class EventId
         return new self($id);
     }
 
+    /**
+     * @psalm-pure
+     */
     public static function generate(): self
     {
-        /** @noinspection PhpUnhandledExceptionInspection */
-
+        /**
+         * @noinspection PhpUnhandledExceptionInspection
+         * @psalm-suppress ImpureMethodCall
+         */
         return new self(Uuid::uuid4()->toString());
     }
 

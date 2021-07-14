@@ -21,16 +21,16 @@
         "php": "^8.0",
         "ext-json": "*",
         "defuse/php-encryption": "^2.3",
-        "doctrine/dbal": "^2.13",
+        "doctrine/dbal": "^2.13 || ^3.1",
         "psr/event-dispatcher": "^1.0",
         "ramsey/uuid": "^3.9 || ^4.0",
+        "symfony/messenger": "^5.3",
         "webmozart/assert": "^1.10"
     },
     "require-dev": {
-        "mockery/mockery": "^1.4",
         "myonlinestore/coding-standard": "^3.1",
         "phpunit/phpunit": "^9.5",
-        "psalm/plugin-phpunit": "^0.15",
-        "vimeo/psalm": "^4.6"
+        "psalm/plugin-phpunit": "^0.16",
+        "vimeo/psalm": "^4.8"
     }
 }

@@ -6,10 +6,10 @@ namespace MyOnlineStore\EventSourcing\Tests\Event;
 use MyOnlineStore\EventSourcing\Encryption\Encrypter;
 use MyOnlineStore\EventSourcing\Event\Event;
 use MyOnlineStore\EventSourcing\Event\EventConverter;
-use MyOnlineStore\EventSourcing\Event\FieldEncrypting;
 use MyOnlineStore\EventSourcing\Event\FieldEncryptingConverter;
 use MyOnlineStore\EventSourcing\Event\StreamMetadata;
 use MyOnlineStore\EventSourcing\Exception\EncryptionFailed;
+use MyOnlineStore\EventSourcing\Tests\Stub\EncryptingEvent;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -48,16 +48,12 @@ final class FieldEncryptingConverterTest extends TestCase
 
     public function testConvertToArrayEncryptsEncryptingEvents(): void
     {
-        $event = \Mockery::mock(\sprintf('%s, %s', FieldEncrypting::class, Event::class));
-        \assert($event instanceof Event && $event instanceof FieldEncrypting);
+        $event = $this->getMockForAbstractClass(EncryptingEvent::class);
 
         $this->innerConverter->expects(self::once())
             ->method('convertToArray')
             ->with($event, $this->streamMetadata)
             ->willReturn(['payload' => ['foo' => 'bar']]);
-
-        $event->shouldReceive('getEncryptingFields')
-            ->andReturn(['foo']);
 
         $this->encrypter->expects(self::once())
             ->method('encrypt')
@@ -72,16 +68,12 @@ final class FieldEncryptingConverterTest extends TestCase
 
     public function testConvertToArrayDoesNotEncryptEmptyFields(): void
     {
-        $event = \Mockery::mock(\sprintf('%s, %s', FieldEncrypting::class, Event::class));
-        \assert($event instanceof Event && $event instanceof FieldEncrypting);
+        $event = $this->getMockForAbstractClass(EncryptingEvent::class);
 
         $this->innerConverter->expects(self::once())
             ->method('convertToArray')
             ->with($event, $this->streamMetadata)
             ->willReturn(['payload' => ['foo' => null, 'bar' => '']]);
-
-        $event->shouldReceive('getEncryptingFields')
-            ->andReturn(['foo', 'bar']);
 
         $this->encrypter->expects(self::never())->method('encrypt');
 
@@ -108,12 +100,8 @@ final class FieldEncryptingConverterTest extends TestCase
 
     public function testCreateFromArrayDecryptsEncryptingEvents(): void
     {
-        $event = \Mockery::mock(\sprintf('%s, %s', FieldEncrypting::class, Event::class));
-        \assert($event instanceof Event && $event instanceof FieldEncrypting);
+        $event = $this->getMockForAbstractClass(EncryptingEvent::class);
         $eventName = $event::class;
-
-        $event->shouldReceive('getEncryptingFields')
-            ->andReturn(['foo']);
 
         $this->encrypter->expects(self::once())
             ->method('decrypt')
@@ -137,12 +125,8 @@ final class FieldEncryptingConverterTest extends TestCase
 
     public function testCreateFromArraySetsFieldToNullIfCantDecrypt(): void
     {
-        $event = \Mockery::mock(\sprintf('%s, %s', FieldEncrypting::class, Event::class));
-        \assert($event instanceof Event && $event instanceof FieldEncrypting);
+        $event = $this->getMockForAbstractClass(EncryptingEvent::class);
         $eventName = $event::class;
-
-        $event->shouldReceive('getEncryptingFields')
-            ->andReturn(['foo']);
 
         $this->encrypter->expects(self::once())
             ->method('decrypt')
@@ -166,11 +150,9 @@ final class FieldEncryptingConverterTest extends TestCase
 
     public function testCreateFromArraySkipsUnencryptedFields(): void
     {
-        $event = \Mockery::mock(\sprintf('%s, %s', FieldEncrypting::class, Event::class));
-        \assert($event instanceof Event && $event instanceof FieldEncrypting);
+        $event = $this->getMockForAbstractClass(EncryptingEvent::class);
         $eventName = $event::class;
 
-        $event->shouldReceive('getEncryptingFields')->andReturn(['foo']);
         $this->encrypter->expects(self::never())->method('decrypt');
 
         $this->innerConverter->expects(self::once())
