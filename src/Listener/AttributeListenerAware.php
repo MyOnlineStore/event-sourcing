@@ -22,6 +22,10 @@ trait AttributeListenerAware
                 foreach ($method->getAttributes(Listener::class) as $listenerAttribute) {
                     $listener = $listenerAttribute->newInstance();
 
+                    if (!isset($this->listeners[$listener->event])) {
+                        $this->listeners[$listener->event] = [];
+                    }
+
                     $this->listeners[$listener->event][] = [$this, $method->getName()];
                 }
             }
