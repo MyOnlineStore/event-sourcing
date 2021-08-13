@@ -8,27 +8,27 @@ use MyOnlineStore\EventSourcing\Event\Event;
 use MyOnlineStore\EventSourcing\Event\Stream;
 use MyOnlineStore\EventSourcing\Event\StreamMetadata;
 use MyOnlineStore\EventSourcing\Repository\EventRepository;
-use MyOnlineStore\EventSourcing\Repository\SymfonyMessengerEventRepository;
+use MyOnlineStore\EventSourcing\Repository\MessageDispatchingEventRepository;
+use MyOnlineStore\MessageDispatcher\MessageDispatcher;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\MessageBusInterface;
 
-final class SymfonyMessengerEventRepositoryTest extends TestCase
+final class MessageDispatchingEventRepositoryTest extends TestCase
 {
     /** @var EventRepository&MockObject */
     private EventRepository $innerRepository;
 
-    /** @var MessageBusInterface&MockObject */
-    private MessageBusInterface $messageBus;
+    /** @var MessageDispatcher&MockObject */
+    private MessageDispatcher $messageDispatcher;
 
-    private SymfonyMessengerEventRepository $repository;
+    private MessageDispatchingEventRepository $repository;
 
     protected function setUp(): void
     {
-        $this->repository = new SymfonyMessengerEventRepository(
+        $this->repository = new MessageDispatchingEventRepository(
             $this->innerRepository = $this->createMock(EventRepository::class),
-            $this->messageBus = $this->createMock(MessageBusInterface::class)
+            $this->messageDispatcher = $this->createMock(MessageDispatcher::class)
         );
     }
 
@@ -48,7 +48,7 @@ final class SymfonyMessengerEventRepositoryTest extends TestCase
             ->method('appendTo')
             ->with($streamName, $aggregateRootId, $eventStream);
 
-        $this->messageBus->expects(self::exactly(2))
+        $this->messageDispatcher->expects(self::exactly(2))
             ->method('dispatch')
             ->withConsecutive(
                 [$event1],
@@ -79,7 +79,7 @@ final class SymfonyMessengerEventRepositoryTest extends TestCase
             ->with($streamName, $aggregateRootId, $metadata)
             ->willReturn($eventStream);
 
-        $this->messageBus->expects(self::never())->method('dispatch');
+        $this->messageDispatcher->expects(self::never())->method('dispatch');
 
         self::assertSame($eventStream, $this->repository->load($streamName, $aggregateRootId, $metadata));
     }
@@ -102,7 +102,7 @@ final class SymfonyMessengerEventRepositoryTest extends TestCase
             ->with($streamName, $aggregateRootId, $version, $metadata)
             ->willReturn($eventStream);
 
-        $this->messageBus->expects(self::never())->method('dispatch');
+        $this->messageDispatcher->expects(self::never())->method('dispatch');
 
         self::assertSame(
             $eventStream,

@@ -6,13 +6,13 @@ namespace MyOnlineStore\EventSourcing\Repository;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Event\Stream;
 use MyOnlineStore\EventSourcing\Event\StreamMetadata;
-use Symfony\Component\Messenger\MessageBusInterface;
+use MyOnlineStore\MessageDispatcher\MessageDispatcher;
 
-final class SymfonyMessengerEventRepository implements EventRepository
+final class MessageDispatchingEventRepository implements EventRepository
 {
     public function __construct(
         private EventRepository $innerRepository,
-        private MessageBusInterface $messageBus,
+        private MessageDispatcher $messageDispatcher,
     ) {
     }
 
@@ -21,7 +21,7 @@ final class SymfonyMessengerEventRepository implements EventRepository
         $this->innerRepository->appendTo($streamName, $aggregateRootId, $eventStream);
 
         foreach ($eventStream as $event) {
-            $this->messageBus->dispatch($event);
+            $this->messageDispatcher->dispatch($event);
         }
     }
 
