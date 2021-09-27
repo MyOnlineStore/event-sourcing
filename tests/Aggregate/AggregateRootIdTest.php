@@ -20,6 +20,16 @@ final class AggregateRootIdTest extends TestCase
         );
     }
 
+    public function testFromAggregateRootId(): void
+    {
+        $aggregateRootId = AggregateRootId::generate();
+
+        $concreteAggregateRootId = ConcreteAggregateRootId::fromAggregateRootId($aggregateRootId);
+
+        self::assertInstanceOf(ConcreteAggregateRootId::class, $concreteAggregateRootId);
+        self::assertSame($aggregateRootId->toString(), $concreteAggregateRootId->toString());
+    }
+
     public function testFromStringWithValidUuid(): void
     {
         $aggregateRootId = AggregateRootId::fromString('8311db73-de57-4fb0-b8bc-84dc37296c1e');
