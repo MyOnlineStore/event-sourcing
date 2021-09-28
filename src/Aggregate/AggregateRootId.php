@@ -18,6 +18,14 @@ class AggregateRootId
     }
 
     /**
+     * @psalm-pure
+     */
+    public static function fromAggregateRootId(self $aggregateRootId): static
+    {
+        return new static($aggregateRootId->id);
+    }
+
+    /**
      * @throws AssertionFailed
      *
      * @psalm-pure
