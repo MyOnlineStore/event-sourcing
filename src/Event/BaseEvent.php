@@ -71,8 +71,8 @@ class BaseEvent implements ArraySerializable
     }
 
     /**
-     * @param array<string, scalar|null> $payload
-     * @param array<string, scalar|null> $metadata
+     * @param array<string, scalar|array|null> $payload
+     * @param array<string, scalar|array|null> $metadata
      *
      * @return static
      *
