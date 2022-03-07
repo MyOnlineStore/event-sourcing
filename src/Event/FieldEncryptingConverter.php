@@ -29,7 +29,7 @@ final class FieldEncryptingConverter implements EventConverter
         }
 
         foreach ($event::getEncryptingFields() as $field) {
-            if (empty($data['payload'][$field])) {
+            if (empty($data['payload'][$field]) || \is_array($data['payload'][$field])) {
                 continue;
             }
 
@@ -52,7 +52,7 @@ final class FieldEncryptingConverter implements EventConverter
         }
 
         foreach ($eventName::getEncryptingFields() as $field) {
-            if (!isset($data['payload'][$field])) {
+            if (!isset($data['payload'][$field]) || \is_array($data['payload'][$field])) {
                 continue;
             }
 

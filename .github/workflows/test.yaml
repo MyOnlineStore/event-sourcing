@@ -1,0 +1,42 @@
+name: Test
+
+on: push
+
+env:
+    COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+    setup:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v3
+            -   uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 8.0
+                    coverage: none
+            -   uses: ramsey/composer-install@v2
+            -   id: set-php-versions
+                run: echo "::set-output name=php-versions::$(vendor/bin/devtools list:php-versions)"
+            -   id: set-tools
+                run: echo "::set-output name=tools::$(vendor/bin/devtools list:enabled-tools)"
+        outputs:
+            php-versions: ${{ steps.set-php-versions.outputs.php-versions }}
+            tools: ${{ steps.set-tools.outputs.tools }}
+
+    test:
+        needs: setup
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                php-version: ${{ fromJson(needs.setup.outputs.php-versions) }}
+                tool: ${{ fromJson(needs.setup.outputs.tools) }}
+            fail-fast: false
+        steps:
+            -   uses: actions/checkout@v3
+            -   uses: shivammathur/setup-php@v2
+                with:
+                    php-version: ${{ matrix.php-version }}
+                    ini-values: assert.exception=1, zend.assertions=1
+            -   uses: ramsey/composer-install@v2
+
+            -   run: vendor/bin/devtools ${{ matrix.tool }}

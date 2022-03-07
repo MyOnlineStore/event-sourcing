@@ -14,12 +14,12 @@ interface Event
     public function getId(): EventId;
 
     /**
-     * @return array<string, scalar|null>
+     * @return array<string, scalar|array|null>
      */
     public function getMetadata(): array;
 
     /**
-     * @return array<string, scalar|null>
+     * @return array<string, scalar|array|null>
      */
     public function getPayload(): array;
 

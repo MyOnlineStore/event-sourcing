@@ -6,28 +6,24 @@ namespace MyOnlineStore\EventSourcing\Event;
 interface ArraySerializable extends Event
 {
     /**
-     * @param array<string, scalar|null> $data
-     *
-     * @psalm-param array{
+     * @param array{
      *     event_id: string,
      *     aggregate_id: string,
      *     created_at: string,
-     *     metadata: array<string, scalar|null>,
-     *     payload: array<string, scalar|null>,
+     *     metadata: array<string, scalar|array|null>,
+     *     payload: array<string, scalar|array|null>,
      *     version: int
      * } $data
      */
     public static function fromArray(array $data): Event;
 
     /**
-     * @return array<string, scalar|null> Must return an array of scalar|nulls/sub-arrays of scalar|nulls
-     *
-     * @psalm-return array{
+     * @return array{
      *     event_id: string,
      *     aggregate_id: string,
      *     created_at: string,
-     *     metadata: array<string, scalar|null>,
-     *     payload: array<string, scalar|null>,
+     *     metadata: array<string, scalar|array|null>,
+     *     payload: array<string, scalar|array|null>,
      *     version: int
      * }
      */
