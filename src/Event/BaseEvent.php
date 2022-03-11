@@ -18,16 +18,16 @@ class BaseEvent implements ArraySerializable
     private AggregateRootId $aggregateId;
     private \DateTimeImmutable $createdAt;
 
-    /** @var array<string, scalar|null> */
+    /** @var array<string, scalar|array|null> */
     private array $metadata;
 
-    /** @var array<string, scalar|null> */
+    /** @var array<string, scalar|array|null> */
     private array $payload;
     private int $version;
 
     /**
-     * @param array<string, scalar|null> $payload
-     * @param array<string, scalar|null> $metadata
+     * @param array<string, scalar|array|null> $payload
+     * @param array<string, scalar|array|null> $metadata
      */
     final private function __construct(AggregateRootId $aggregateId, array $payload, array $metadata = [])
     {
@@ -37,14 +37,12 @@ class BaseEvent implements ArraySerializable
     }
 
     /**
-     * @param array<string, scalar|null> $data
-     *
-     * @psalm-param array{
+     * @param array{
      *     event_id: string,
      *     aggregate_id: string,
      *     created_at: string,
-     *     metadata: array<string, scalar|null>,
-     *     payload: array<string, scalar|null>,
+     *     metadata: array<string, scalar|array|null>,
+     *     payload: array<string, scalar|array|null>,
      *     version: int
      * } $data
      *
@@ -73,8 +71,8 @@ class BaseEvent implements ArraySerializable
     }
 
     /**
-     * @param array<string, scalar|null> $payload
-     * @param array<string, scalar|null> $metadata
+     * @param array<string, scalar|array|null> $payload
+     * @param array<string, scalar|array|null> $metadata
      *
      * @return static
      *
@@ -107,7 +105,7 @@ class BaseEvent implements ArraySerializable
     }
 
     /**
-     * @return array<string, scalar|null>
+     * @return array<string, scalar|array|null>
      */
     public function getMetadata(): array
     {
@@ -115,7 +113,7 @@ class BaseEvent implements ArraySerializable
     }
 
     /**
-     * @return array<string, scalar|null>
+     * @return array<string, scalar|array|null>
      */
     public function getPayload(): array
     {
@@ -128,14 +126,12 @@ class BaseEvent implements ArraySerializable
     }
 
     /**
-     * @return array<string, scalar|null>
-     *
-     * @psalm-return array{
+     * @return array{
      *     event_id: string,
      *     aggregate_id: string,
      *     created_at: string,
-     *     metadata: array<string, scalar|null>,
-     *     payload: array<string, scalar|null>,
+     *     metadata: array<string, scalar|array|null>,
+     *     payload: array<string, scalar|array|null>,
      *     version: int
      * }
      */
