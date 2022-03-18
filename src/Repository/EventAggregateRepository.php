@@ -15,11 +15,11 @@ final class EventAggregateRepository implements AggregateRepository
     private MetadataRepository $metadataRepository;
     private string $streamName;
 
-    /** @psalm-var class-string<AggregateRoot> $aggregateName */
+    /** @var class-string<AggregateRoot> $aggregateName */
     private string $aggregateName;
 
     /**
-     * @psalm-param class-string<AggregateRoot> $aggregateName
+     * @param class-string<AggregateRoot> $aggregateName
      */
     public function __construct(
         AggregateFactory $aggregateFactory,
