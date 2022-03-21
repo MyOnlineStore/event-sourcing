@@ -5,7 +5,6 @@ namespace MyOnlineStore\EventSourcing\Repository;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
-use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Exception;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Event\Event;
@@ -17,24 +16,16 @@ use MyOnlineStore\EventSourcing\Service\Encoder;
 
 final class DBALEventRepository implements EventRepository
 {
-    private Connection $connection;
-    private EventConverter $eventConverter;
-    private Encoder $jsonEncoder;
-
     public function __construct(
-        Connection $connection,
-        Encoder $jsonEncoder,
-        EventConverter $eventConverter
+        private Connection $connection,
+        private Encoder $jsonEncoder,
+        private EventConverter $eventConverter
     ) {
-        $this->connection = $connection;
-        $this->jsonEncoder = $jsonEncoder;
-        $this->eventConverter = $eventConverter;
     }
 
     /**
      * @throws ConnectionException
      * @throws EncodingFailed
-     * @throws DriverException
      * @throws Exception
      */
     public function appendTo(string $streamName, AggregateRootId $aggregateRootId, Stream $eventStream): void
@@ -61,12 +52,12 @@ final class DBALEventRepository implements EventRepository
         foreach ($eventStream as $event) {
             $eventData = $this->eventConverter->convertToArray($event, $metadata);
 
-            $data[] = $eventData['event_id'];
+            $data[] = $eventData['eventId'];
             $data[] = $event::class;
-            $data[] = $eventData['aggregate_id'];
+            $data[] = $eventData['aggregateId'];
             $data[] = $this->jsonEncoder->encode($eventData['payload']);
             $data[] = $this->jsonEncoder->encode($eventData['metadata']);
-            $data[] = $eventData['created_at'];
+            $data[] = $eventData['createdAt'];
             $data[] = $eventData['version'];
         }
 
@@ -148,7 +139,7 @@ final class DBALEventRepository implements EventRepository
 
         foreach ($result as $eventData) {
             /**
-             * @psalm-var array{
+             * @var array{
              *     event_name: class-string<Event>,
              *     aggregate_id: string,
              *     created_at: string,
@@ -163,11 +154,11 @@ final class DBALEventRepository implements EventRepository
             $events[] = $this->eventConverter->createFromArray(
                 $eventData['event_name'],
                 [
-                    'event_id' => $eventData['event_id'],
-                    'aggregate_id' => $stringAggregateRootId,
+                    'eventId' => $eventData['event_id'],
+                    'aggregateId' => $stringAggregateRootId,
                     'payload' => $this->jsonEncoder->decode($eventData['payload']),
                     'metadata' => $this->jsonEncoder->decode($eventData['metadata']),
-                    'created_at' => $eventData['created_at'],
+                    'createdAt' => $eventData['created_at'],
                     'version' => $eventData['version'],
                 ],
                 $metadata

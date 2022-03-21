@@ -47,19 +47,19 @@ final class DBALEventRepositoryTest extends TestCase
             ->method('convertToArray')
             ->willReturnOnConsecutiveCalls(
                 [
-                    'event_id' => 'event1a',
-                    'aggregate_id' => 'event1f',
+                    'eventId' => 'event1a',
+                    'aggregateId' => 'event1f',
                     'payload' => 'event1b',
                     'metadata' => 'event1c',
-                    'created_at' => 'event1d',
+                    'createdAt' => 'event1d',
                     'version' => 'event1e',
                 ],
                 [
-                    'event_id' => 'event2a',
-                    'aggregate_id' => 'event2f',
+                    'eventId' => 'event2a',
+                    'aggregateId' => 'event2f',
                     'payload' => 'event2b',
                     'metadata' => 'event2c',
-                    'created_at' => 'event2d',
+                    'createdAt' => 'event2d',
                     'version' => 'event2e',
                 ]
             );
@@ -180,11 +180,11 @@ final class DBALEventRepositoryTest extends TestCase
                 [
                     'event1',
                     [
-                        'event_id' => 'id1',
-                        'aggregate_id' => 'agg-id',
+                        'eventId' => 'id1',
+                        'aggregateId' => 'agg-id',
                         'payload' => 'pay1',
                         'metadata' => 'met1',
-                        'created_at' => 'ts1',
+                        'createdAt' => 'ts1',
                         'version' => 'v1',
                     ],
                     $metadata,
@@ -192,11 +192,11 @@ final class DBALEventRepositoryTest extends TestCase
                 [
                     'event2',
                     [
-                        'event_id' => 'id2',
-                        'aggregate_id' => 'agg-id',
+                        'eventId' => 'id2',
+                        'aggregateId' => 'agg-id',
                         'payload' => 'pay2',
                         'metadata' => 'met2',
-                        'created_at' => 'ts2',
+                        'createdAt' => 'ts2',
                         'version' => 'v2',
                     ],
                     $metadata,
@@ -278,11 +278,11 @@ final class DBALEventRepositoryTest extends TestCase
                 [
                     'event1',
                     [
-                        'event_id' => 'id1',
-                        'aggregate_id' => 'agg-id',
+                        'eventId' => 'id1',
+                        'aggregateId' => 'agg-id',
                         'payload' => 'pay1',
                         'metadata' => 'met1',
-                        'created_at' => 'ts1',
+                        'createdAt' => 'ts1',
                         'version' => 'v1',
                     ],
                     $metadata,
@@ -290,11 +290,11 @@ final class DBALEventRepositoryTest extends TestCase
                 [
                     'event2',
                     [
-                        'event_id' => 'id2',
-                        'aggregate_id' => 'agg-id',
+                        'eventId' => 'id2',
+                        'aggregateId' => 'agg-id',
                         'payload' => 'pay2',
                         'metadata' => 'met2',
-                        'created_at' => 'ts2',
+                        'createdAt' => 'ts2',
                         'version' => 'v2',
                     ],
                     $metadata,
