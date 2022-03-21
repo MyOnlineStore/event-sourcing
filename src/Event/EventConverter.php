@@ -7,9 +7,9 @@ interface EventConverter
 {
     /**
      * @return array{
-     *     aggregate_id: string,
-     *     created_at: string,
-     *     event_id: string,
+     *     aggregateId: string,
+     *     createdAt: string,
+     *     eventId: string,
      *     metadata: array<string, scalar|array|null>,
      *     payload: array<string, scalar|array|null>,
      *     version: int
@@ -20,9 +20,9 @@ interface EventConverter
     /**
      * @param class-string<Event> $eventName
      * @param array{
-     *     aggregate_id: string,
-     *     created_at: string,
-     *     event_id: string,
+     *     aggregateId: string,
+     *     createdAt: string,
+     *     eventId: string,
      *     metadata: array<string, scalar|array|null>,
      *     payload: array<string, scalar|array|null>,
      *     version: int

@@ -15,32 +15,25 @@ class BaseEvent implements ArraySerializable
     private const CREATED_FORMAT = 'Y-m-d H:i:s.u';
 
     private EventId $id;
-    private AggregateRootId $aggregateId;
     private \DateTimeImmutable $createdAt;
-
-    /** @var array<string, scalar|array|null> */
-    private array $metadata;
-
-    /** @var array<string, scalar|array|null> */
-    private array $payload;
     private int $version;
 
     /**
      * @param array<string, scalar|array|null> $payload
      * @param array<string, scalar|array|null> $metadata
      */
-    final private function __construct(AggregateRootId $aggregateId, array $payload, array $metadata = [])
-    {
-        $this->aggregateId = $aggregateId;
-        $this->payload = $payload;
-        $this->metadata = $metadata;
+    final private function __construct(
+        private AggregateRootId $aggregateId,
+        private array $payload,
+        private array $metadata = []
+    ) {
     }
 
     /**
      * @param array{
-     *     event_id: string,
-     *     aggregate_id: string,
-     *     created_at: string,
+     *     eventId: string,
+     *     aggregateId: string,
+     *     createdAt: string,
      *     metadata: array<string, scalar|array|null>,
      *     payload: array<string, scalar|array|null>,
      *     version: int
@@ -54,17 +47,17 @@ class BaseEvent implements ArraySerializable
      */
     public static function fromArray(array $data): Event
     {
-        Assert::keyExists($data, 'event_id');
-        Assert::keyExists($data, 'aggregate_id');
+        Assert::keyExists($data, 'eventId');
+        Assert::keyExists($data, 'aggregateId');
         Assert::keyExists($data, 'payload');
         Assert::keyExists($data, 'metadata');
-        Assert::keyExists($data, 'created_at');
+        Assert::keyExists($data, 'createdAt');
         Assert::keyExists($data, 'version');
 
-        $event = new static(AggregateRootId::fromString($data['aggregate_id']), $data['payload'], $data['metadata']);
-        $event->id = EventId::fromString($data['event_id']);
+        $event = new static(AggregateRootId::fromString($data['aggregateId']), $data['payload'], $data['metadata']);
+        $event->id = EventId::fromString($data['eventId']);
         /** @psalm-suppress PossiblyFalsePropertyAssignmentValue */
-        $event->createdAt = \DateTimeImmutable::createFromFormat(self::CREATED_FORMAT, $data['created_at']);
+        $event->createdAt = \DateTimeImmutable::createFromFormat(self::CREATED_FORMAT, $data['createdAt']);
         $event->version = $data['version'];
 
         return $event;
@@ -127,9 +120,9 @@ class BaseEvent implements ArraySerializable
 
     /**
      * @return array{
-     *     event_id: string,
-     *     aggregate_id: string,
-     *     created_at: string,
+     *     eventId: string,
+     *     aggregateId: string,
+     *     createdAt: string,
      *     metadata: array<string, scalar|array|null>,
      *     payload: array<string, scalar|array|null>,
      *     version: int
@@ -138,9 +131,9 @@ class BaseEvent implements ArraySerializable
     public function toArray(): array
     {
         return [
-            'event_id' => (string) $this->id,
-            'aggregate_id' => (string) $this->aggregateId,
-            'created_at' => $this->createdAt->format(self::CREATED_FORMAT),
+            'eventId' => (string) $this->id,
+            'aggregateId' => (string) $this->aggregateId,
+            'createdAt' => $this->createdAt->format(self::CREATED_FORMAT),
             'metadata' => $this->metadata,
             'payload' => $this->payload,
             'version' => $this->version,

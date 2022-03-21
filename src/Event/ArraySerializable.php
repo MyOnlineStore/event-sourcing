@@ -7,9 +7,9 @@ interface ArraySerializable extends Event
 {
     /**
      * @param array{
-     *     event_id: string,
-     *     aggregate_id: string,
-     *     created_at: string,
+     *     eventId: string,
+     *     aggregateId: string,
+     *     createdAt: string,
      *     metadata: array<string, scalar|array|null>,
      *     payload: array<string, scalar|array|null>,
      *     version: int
@@ -19,9 +19,9 @@ interface ArraySerializable extends Event
 
     /**
      * @return array{
-     *     event_id: string,
-     *     aggregate_id: string,
-     *     created_at: string,
+     *     eventId: string,
+     *     aggregateId: string,
+     *     createdAt: string,
      *     metadata: array<string, scalar|array|null>,
      *     payload: array<string, scalar|array|null>,
      *     version: int
