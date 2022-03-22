@@ -57,7 +57,11 @@ class BaseEvent implements ArraySerializable
         $event = new static(AggregateRootId::fromString($data['aggregateId']), $data['payload'], $data['metadata']);
         $event->id = EventId::fromString($data['eventId']);
         /** @psalm-suppress PossiblyFalsePropertyAssignmentValue */
-        $event->createdAt = \DateTimeImmutable::createFromFormat(self::CREATED_FORMAT, $data['createdAt']);
+        $event->createdAt = \DateTimeImmutable::createFromFormat(
+            self::CREATED_FORMAT,
+            $data['createdAt'],
+            new \DateTimeZone('UTC')
+        );
         $event->version = $data['version'];
 
         return $event;
