@@ -9,13 +9,17 @@ use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Event\Stream;
 use MyOnlineStore\EventSourcing\Event\StreamMetadata;
 
+/**
+ * @template T of AggregateRoot
+ * @implements AggregateRepository<T>
+ */
 final class InMemoryAggregateRepository implements AggregateRepository
 {
-    /** @var array<string, AggregateRoot> */
+    /** @var array<string, T> */
     private array $aggregates = [];
 
     /**
-     * @param class-string<AggregateRoot> $aggregateName
+     * @param class-string<T> $aggregateName
      */
     public function __construct(
         private AggregateFactory $aggregateFactory,
