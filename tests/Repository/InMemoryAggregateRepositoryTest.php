@@ -28,13 +28,15 @@ final class InMemoryAggregateRepositoryTest extends TestCase
         );
 
         $this->repository->save($aggregateA);
+        $loadedAggregateA = $this->repository->load($aggregateIdA);
 
-        self::assertSame($aggregateA, $this->repository->load($aggregateIdA));
+        self::assertNotSame($aggregateA, $loadedAggregateA);
+        self::assertTrue($aggregateIdA->equals($loadedAggregateA->getAggregateRootId()));
 
         $aggregateIdB = AggregateRootId::generate();
         $aggregateB = $this->repository->load($aggregateIdB);
 
         self::assertInstanceOf(BaseAggregateRoot::class, $aggregateB);
-        self::assertNotSame($aggregateB, $aggregateA);
+        self::assertFalse($aggregateIdB->equals($aggregateA->getAggregateRootId()));
     }
 }

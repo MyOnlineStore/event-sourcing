@@ -33,7 +33,7 @@ final class InMemoryAggregateRepository implements AggregateRepository
             );
         }
 
-        return $this->aggregates[$aggregateRootId->toString()];
+        return clone $this->aggregates[$aggregateRootId->toString()];
     }
 
     public function save(AggregateRoot $aggregateRoot): void
