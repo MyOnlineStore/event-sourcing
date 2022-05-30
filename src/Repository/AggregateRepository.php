@@ -8,6 +8,7 @@ use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 
 /**
  * @template T of AggregateRoot
+ * @template-covariant T
  */
 interface AggregateRepository
 {
