@@ -7,7 +7,6 @@ use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Aggregate\FQCNAggregateFactory;
 use MyOnlineStore\EventSourcing\Event\Stream;
 use MyOnlineStore\EventSourcing\Event\StreamMetadata;
-use MyOnlineStore\EventSourcing\Exception\AssertionFailed;
 use MyOnlineStore\EventSourcing\Tests\Mock\BaseAggregateRoot;
 use PHPUnit\Framework\TestCase;
 
@@ -33,26 +32,6 @@ final class FQCNAggregateFactoryTest extends TestCase
                 $aggregateRootId,
                 new Stream([], new StreamMetadata([]))
             )
-        );
-    }
-
-    public function testReconstituteFromHistoryWithInvalidClass(): void
-    {
-        $this->expectException(AssertionFailed::class);
-        $this->factory->reconstituteFromHistory(
-            'foobar',
-            $this->createMock(AggregateRootId::class),
-            new Stream([], new StreamMetadata([]))
-        );
-    }
-
-    public function testReconstituteFromHistoryWithNonAggregateRoot(): void
-    {
-        $this->expectException(AssertionFailed::class);
-        $this->factory->reconstituteFromHistory(
-            \stdClass::class,
-            $this->createMock(AggregateRootId::class),
-            new Stream([], new StreamMetadata([]))
         );
     }
 }
