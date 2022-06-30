@@ -11,34 +11,18 @@ use MyOnlineStore\EventSourcing\Exception\SnapshotNotFound;
 
 final class SnapshottingAggregateRepository implements AggregateRepository
 {
-    private AggregateRepository $innerRepository;
-    private EventRepository $eventRepository;
-    private MetadataRepository $metadataRepository;
-    private SnapshotRepository $snapshotRepository;
-    private SnapshottingAggregateFactory $aggregateFactory;
-    /** @psalm-var class-string<SnapshottingAggregateRoot> $aggregateName */
-    private string $aggregateName;
-    private string $streamName;
-
     /**
-     * @psalm-param class-string<SnapshottingAggregateRoot> $aggregateName
+     * @param class-string<SnapshottingAggregateRoot> $aggregateName
      */
     public function __construct(
-        AggregateRepository $innerRepository,
-        EventRepository $eventRepository,
-        MetadataRepository $metadataRepository,
-        SnapshotRepository $snapshotRepository,
-        SnapshottingAggregateFactory $aggregateFactory,
-        string $aggregateName,
-        string $streamName
+        private AggregateRepository $innerRepository,
+        private EventRepository $eventRepository,
+        private MetadataRepository $metadataRepository,
+        private SnapshotRepository $snapshotRepository,
+        private SnapshottingAggregateFactory $aggregateFactory,
+        private string $aggregateName,
+        private string $streamName
     ) {
-        $this->snapshotRepository = $snapshotRepository;
-        $this->eventRepository = $eventRepository;
-        $this->metadataRepository = $metadataRepository;
-        $this->innerRepository = $innerRepository;
-        $this->aggregateFactory = $aggregateFactory;
-        $this->aggregateName = $aggregateName;
-        $this->streamName = $streamName;
     }
 
     public function load(AggregateRootId $aggregateRootId): AggregateRoot
@@ -56,7 +40,7 @@ final class SnapshottingAggregateRepository implements AggregateRepository
                     $this->metadataRepository->load($this->streamName, $aggregateRootId)
                 )
             );
-        } catch (SnapshotNotFound) {
+        } catch (SnapshotNotFound | \TypeError) {
         }
 
         return $this->innerRepository->load($aggregateRootId);

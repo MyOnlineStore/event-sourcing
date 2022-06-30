@@ -33,17 +33,17 @@
         "doctrine/dbal": "^2.13 || ^3.1",
         "psr/event-dispatcher": "^1.0",
         "ramsey/uuid": "^3.9 || ^4.0",
-        "webmozart/assert": "^1.10"
+        "webmozart/assert": "^1.11"
     },
     "require-dev": {
         "defuse/php-encryption": "^2.3",
         "myonlinestore/coding-standard": "^3.1",
         "myonlinestore/message-dispatcher": "^1.0",
-        "myonlinestore/php-devtools": "^0.2.0",
+        "myonlinestore/php-devtools": "^0.3",
         "phpunit/phpunit": "^9.5",
         "psalm/plugin-phpunit": "^0.16",
         "squizlabs/php_codesniffer": "dev-master",
-        "vimeo/psalm": "^4.22"
+        "vimeo/psalm": "^4.24"
     },
     "suggest": {
         "defuse/php-encryption": "To use encrypting events",

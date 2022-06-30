@@ -17,17 +17,23 @@ use MyOnlineStore\EventSourcing\Repository\SnapshotRepository;
 use MyOnlineStore\EventSourcing\Repository\SnapshottingAggregateRepository;
 use MyOnlineStore\EventSourcing\Tests\Mock\BaseAggregateRoot;
 use MyOnlineStore\EventSourcing\Tests\Mock\BaseSnapshottingAggregateRoot;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 final class SnapshottingAggregateRepositoryTest extends TestCase
 {
     private BaseSnapshottingAggregateRoot $aggregateRoot;
     private AggregateRootId $aggregateRootId;
+    /** @var AggregateRepository & MockObject */
     private AggregateRepository $innerRepository;
+    /** @var EventRepository & MockObject */
     private EventRepository $eventRepository;
+    /** @var MetadataRepository & MockObject */
     private MetadataRepository $metadataRepository;
     private SnapshottingAggregateRepository $repository;
+    /** @var SnapshotRepository & MockObject */
     private SnapshotRepository $snapshotRepository;
+    /** @var SnapshottingAggregateFactory & MockObject */
     private SnapshottingAggregateFactory $aggregateFactory;
     /** @psalm-var class-string<SnapshottingAggregateRoot> $aggregateName */
     private string $aggregateName;
@@ -90,6 +96,45 @@ final class SnapshottingAggregateRepositoryTest extends TestCase
             ->method('load')
             ->with($this->streamName, $this->aggregateRootId)
             ->willThrowException(SnapshotNotFound::withAggregateRootId($this->aggregateRootId));
+
+        $this->innerRepository->expects(self::once())
+            ->method('load')
+            ->with($this->aggregateRootId)
+            ->willReturn($this->aggregateRoot);
+
+        self::assertSame($this->aggregateRoot, $this->repository->load($this->aggregateRootId));
+    }
+
+    public function testLoadUsesInnerRepositoryIfReconstituteFails(): void
+    {
+        $this->snapshotRepository->expects(self::once())
+            ->method('load')
+            ->with($this->streamName, $this->aggregateRootId)
+            ->willReturn($snapshot = new Snapshot($this->aggregateRootId, 12, 'aggregate_state'));
+
+        $this->metadataRepository->expects(self::once())
+            ->method('load')
+            ->with($this->streamName, $this->aggregateRootId)
+            ->willReturn($metadata = new StreamMetadata([]));
+
+        $this->eventRepository->expects(self::once())
+            ->method('loadAfterVersion')
+            ->with(
+                $this->streamName,
+                $this->aggregateRootId,
+                12,
+                $metadata
+            )
+            ->willReturn($stream = new Stream([], $metadata));
+
+        $this->aggregateFactory->expects(self::once())
+            ->method('reconstituteFromSnapshotAndHistory')
+            ->with(
+                $this->aggregateName,
+                $snapshot,
+                $stream
+            )
+            ->willThrowException(new \TypeError());
 
         $this->innerRepository->expects(self::once())
             ->method('load')
