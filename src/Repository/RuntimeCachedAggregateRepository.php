@@ -16,8 +16,9 @@ final class RuntimeCachedAggregateRepository implements AggregateRepository
     private array $aggregates = [];
 
     /** @param AggregateRepository<T> $innerRepository */
-    public function __construct(private AggregateRepository $innerRepository)
-    {
+    public function __construct(
+        private readonly AggregateRepository $innerRepository,
+    ) {
     }
 
     public function save(AggregateRoot $aggregateRoot): void

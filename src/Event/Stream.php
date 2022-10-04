@@ -6,8 +6,8 @@ namespace MyOnlineStore\EventSourcing\Event;
 /** @extends \ArrayObject<array-key, Event> */
 final class Stream extends \ArrayObject
 {
-    /** @param Event[] $events */
-    public function __construct(iterable $events, private StreamMetadata $metadata)
+    /** @param list<Event> $events */
+    public function __construct(array $events, private StreamMetadata $metadata)
     {
         parent::__construct($events);
     }

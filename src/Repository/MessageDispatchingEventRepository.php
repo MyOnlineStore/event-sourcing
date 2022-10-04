@@ -11,8 +11,8 @@ use MyOnlineStore\MessageDispatcher\MessageDispatcher;
 final class MessageDispatchingEventRepository implements EventRepository
 {
     public function __construct(
-        private EventRepository $innerRepository,
-        private MessageDispatcher $messageDispatcher,
+        private readonly EventRepository $innerRepository,
+        private readonly MessageDispatcher $messageDispatcher,
     ) {
     }
 

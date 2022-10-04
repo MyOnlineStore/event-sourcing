@@ -5,6 +5,7 @@ namespace MyOnlineStore\EventSourcing\Tests\Repository;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Statement;
+use Doctrine\DBAL\Types\Types;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Event\Event;
 use MyOnlineStore\EventSourcing\Event\EventConverter;
@@ -17,12 +18,9 @@ use PHPUnit\Framework\TestCase;
 
 final class DBALEventRepositoryTest extends TestCase
 {
-    /** @psalm-var Connection&MockObject */
-    private Connection $connection;
-    /** @psalm-var EventConverter&MockObject */
-    private EventConverter $eventConverter;
-    /** @psalm-var Encoder&MockObject */
-    private Encoder $jsonEncoder;
+    private Connection&MockObject $connection;
+    private EventConverter&MockObject $eventConverter;
+    private Encoder&MockObject $jsonEncoder;
     private DBALEventRepository $repository;
 
     protected function setUp(): void
@@ -122,13 +120,13 @@ final class DBALEventRepositoryTest extends TestCase
     public function testLoad(): void
     {
         $streamName = 'event_stream';
-        $aggregateRootId = $this->createMock(AggregateRootId::class);
-        $aggregateRootId->method('__toString')->willReturn('agg-id');
+        $aggregateRootId = AggregateRootId::generate();
         $metadata = new StreamMetadata([]);
 
         $this->connection->expects(self::once())
-            ->method('fetchAllAssociative')
-            ->with('SELECT
+            ->method('iterateAssociative')
+            ->with(
+                'SELECT
                     event_id,
                     event_name,
                     payload,
@@ -137,26 +135,31 @@ final class DBALEventRepositoryTest extends TestCase
                     version
                 FROM ' . $streamName . '
                 WHERE aggregate_id = ?
-                ORDER BY version ASC', ['agg-id'])
+                ORDER BY version ASC',
+                [$aggregateRootId->toString()],
+                [Types::STRING],
+            )
             ->willReturn(
-                [
+                new \ArrayIterator(
                     [
-                        'event_name' => 'event1',
-                        'event_id' => 'id1',
-                        'payload' => 'pay1_json',
-                        'metadata' => 'met1_json',
-                        'created_at' => 'ts1',
-                        'version' => 'v1',
+                        [
+                            'event_name' => 'event1',
+                            'event_id' => 'id1',
+                            'payload' => 'pay1_json',
+                            'metadata' => 'met1_json',
+                            'created_at' => 'ts1',
+                            'version' => 'v1',
+                        ],
+                        [
+                            'event_name' => 'event2',
+                            'event_id' => 'id2',
+                            'payload' => 'pay2_json',
+                            'metadata' => 'met2_json',
+                            'created_at' => 'ts2',
+                            'version' => 'v2',
+                        ],
                     ],
-                    [
-                        'event_name' => 'event2',
-                        'event_id' => 'id2',
-                        'payload' => 'pay2_json',
-                        'metadata' => 'met2_json',
-                        'created_at' => 'ts2',
-                        'version' => 'v2',
-                    ],
-                ],
+                ),
             );
 
         $this->jsonEncoder->expects(self::exactly(4))
@@ -181,7 +184,7 @@ final class DBALEventRepositoryTest extends TestCase
                     'event1',
                     [
                         'eventId' => 'id1',
-                        'aggregateId' => 'agg-id',
+                        'aggregateId' => $aggregateRootId->toString(),
                         'payload' => 'pay1',
                         'metadata' => 'met1',
                         'createdAt' => 'ts1',
@@ -193,7 +196,7 @@ final class DBALEventRepositoryTest extends TestCase
                     'event2',
                     [
                         'eventId' => 'id2',
-                        'aggregateId' => 'agg-id',
+                        'aggregateId' => $aggregateRootId->toString(),
                         'payload' => 'pay2',
                         'metadata' => 'met2',
                         'createdAt' => 'ts2',
@@ -216,13 +219,12 @@ final class DBALEventRepositoryTest extends TestCase
     public function testLoadAfterVersion(): void
     {
         $streamName = 'event_stream';
-        $aggregateRootId = $this->createMock(AggregateRootId::class);
-        $aggregateRootId->method('__toString')->willReturn('agg-id');
+        $aggregateRootId = AggregateRootId::generate();
         $version = 12;
         $metadata = new StreamMetadata([]);
 
         $this->connection->expects(self::once())
-            ->method('fetchAllAssociative')
+            ->method('iterateAssociative')
             ->with(
                 'SELECT
                     event_id,
@@ -234,27 +236,30 @@ final class DBALEventRepositoryTest extends TestCase
                 FROM ' . $streamName . '
                 WHERE aggregate_id = ? AND version > ?
                 ORDER BY version ASC',
-                ['agg-id', 12],
+                [$aggregateRootId->toString(), 12],
+                [Types::STRING, Types::INTEGER],
             )
             ->willReturn(
-                [
+                new \ArrayIterator(
                     [
-                        'event_name' => 'event1',
-                        'event_id' => 'id1',
-                        'payload' => 'pay1_json',
-                        'metadata' => 'met1_json',
-                        'created_at' => 'ts1',
-                        'version' => 'v1',
+                        [
+                            'event_name' => 'event1',
+                            'event_id' => 'id1',
+                            'payload' => 'pay1_json',
+                            'metadata' => 'met1_json',
+                            'created_at' => 'ts1',
+                            'version' => 'v1',
+                        ],
+                        [
+                            'event_name' => 'event2',
+                            'event_id' => 'id2',
+                            'payload' => 'pay2_json',
+                            'metadata' => 'met2_json',
+                            'created_at' => 'ts2',
+                            'version' => 'v2',
+                        ],
                     ],
-                    [
-                        'event_name' => 'event2',
-                        'event_id' => 'id2',
-                        'payload' => 'pay2_json',
-                        'metadata' => 'met2_json',
-                        'created_at' => 'ts2',
-                        'version' => 'v2',
-                    ],
-                ],
+                ),
             );
 
         $this->jsonEncoder->expects(self::exactly(4))
@@ -279,7 +284,7 @@ final class DBALEventRepositoryTest extends TestCase
                     'event1',
                     [
                         'eventId' => 'id1',
-                        'aggregateId' => 'agg-id',
+                        'aggregateId' => $aggregateRootId->toString(),
                         'payload' => 'pay1',
                         'metadata' => 'met1',
                         'createdAt' => 'ts1',
@@ -291,7 +296,7 @@ final class DBALEventRepositoryTest extends TestCase
                     'event2',
                     [
                         'eventId' => 'id2',
-                        'aggregateId' => 'agg-id',
+                        'aggregateId' => $aggregateRootId->toString(),
                         'payload' => 'pay2',
                         'metadata' => 'met2',
                         'createdAt' => 'ts2',

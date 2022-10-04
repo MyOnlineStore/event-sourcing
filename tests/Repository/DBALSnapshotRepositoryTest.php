@@ -4,15 +4,17 @@ declare(strict_types=1);
 namespace MyOnlineStore\EventSourcing\Tests\Repository;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Types\Types;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Aggregate\Snapshot;
 use MyOnlineStore\EventSourcing\Exception\SnapshotNotFound;
 use MyOnlineStore\EventSourcing\Repository\DBALSnapshotRepository;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 final class DBALSnapshotRepositoryTest extends TestCase
 {
-    private Connection $connection;
+    private Connection&MockObject $connection;
     private DBALSnapshotRepository $repository;
 
     protected function setUp(): void
@@ -25,12 +27,15 @@ final class DBALSnapshotRepositoryTest extends TestCase
     public function testLoad(): void
     {
         $streamName = 'stream';
-        $aggregateRootId = $this->createMock(AggregateRootId::class);
-        $aggregateRootId->method('__toString')->willReturn('agg-id');
+        $aggregateRootId = AggregateRootId::generate();
 
         $this->connection->expects(self::once())
             ->method('fetchAssociative')
-            ->with('SELECT version, state FROM ' . $streamName . '_snapshot WHERE aggregate_id = ?', ['agg-id'])
+            ->with(
+                'SELECT version, state FROM ' . $streamName . '_snapshot WHERE aggregate_id = ?',
+                [$aggregateRootId->toString()],
+                [Types::STRING],
+            )
             ->willReturn(
                 [
                     'version' => 12,
@@ -49,12 +54,15 @@ final class DBALSnapshotRepositoryTest extends TestCase
         $this->expectException(SnapshotNotFound::class);
 
         $streamName = 'stream';
-        $aggregateRootId = $this->createMock(AggregateRootId::class);
-        $aggregateRootId->method('__toString')->willReturn('agg-id');
+        $aggregateRootId = AggregateRootId::generate();
 
         $this->connection->expects(self::once())
             ->method('fetchAssociative')
-            ->with('SELECT version, state FROM ' . $streamName . '_snapshot WHERE aggregate_id = ?', ['agg-id'])
+            ->with(
+                'SELECT version, state FROM ' . $streamName . '_snapshot WHERE aggregate_id = ?',
+                [$aggregateRootId->toString()],
+                [Types::STRING],
+            )
             ->willReturn(false);
 
         $this->repository->load($streamName, $aggregateRootId);
@@ -63,8 +71,7 @@ final class DBALSnapshotRepositoryTest extends TestCase
     public function testSave(): void
     {
         $streamName = 'stream';
-        $aggregateRootId = $this->createMock(AggregateRootId::class);
-        $aggregateRootId->method('__toString')->willReturn('agg-id');
+        $aggregateRootId = AggregateRootId::generate();
 
         $this->connection->expects(self::once())
             ->method('executeStatement')
@@ -73,9 +80,14 @@ final class DBALSnapshotRepositoryTest extends TestCase
             VALUES (:aggregate_id, :version, :state)
             ON CONFLICT (aggregate_id) DO UPDATE SET version = :version, state = :state',
                 [
-                    'aggregate_id' => 'agg-id',
+                    'aggregate_id' => $aggregateRootId->toString(),
                     'version' => 12,
                     'state' => 'aggregate_state',
+                ],
+                [
+                    'aggregate_id' => Types::STRING,
+                    'version' => Types::INTEGER,
+                    'state' => Types::STRING,
                 ],
             );
 

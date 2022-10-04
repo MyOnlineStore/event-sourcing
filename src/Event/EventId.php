@@ -11,7 +11,7 @@ use Ramsey\Uuid\Uuid;
 final class EventId
 {
     private function __construct(
-        private string $id,
+        private readonly string $id,
     ) {
     }
 

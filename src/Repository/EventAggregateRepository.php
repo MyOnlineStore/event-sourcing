@@ -12,11 +12,11 @@ final class EventAggregateRepository implements AggregateRepository
 {
     /** @param class-string<AggregateRoot> $aggregateName */
     public function __construct(
-        private AggregateFactory $aggregateFactory,
-        private EventRepository $eventRepository,
-        private MetadataRepository $metadataRepository,
-        private string $aggregateName,
-        private string $streamName,
+        private readonly AggregateFactory $aggregateFactory,
+        private readonly EventRepository $eventRepository,
+        private readonly MetadataRepository $metadataRepository,
+        private readonly string $aggregateName,
+        private readonly string $streamName,
     ) {
     }
 

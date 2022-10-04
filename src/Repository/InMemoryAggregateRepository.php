@@ -19,10 +19,7 @@ final class InMemoryAggregateRepository implements AggregateRepository
     /** @var array<string, T> */
     private array $aggregates = [];
 
-    /**
-     * @param AggregateFactory<T> $aggregateFactory
-     * @param class-string<T>     $aggregateName
-     */
+    /** @param class-string<T> $aggregateName */
     public function __construct(
         private readonly AggregateFactory $aggregateFactory,
         private readonly string $aggregateName,

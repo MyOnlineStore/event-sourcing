@@ -6,6 +6,7 @@ namespace MyOnlineStore\EventSourcing\Repository;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Types\Types;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Event\Event;
 use MyOnlineStore\EventSourcing\Event\EventConverter;
@@ -17,9 +18,9 @@ use MyOnlineStore\EventSourcing\Service\Encoder;
 final class DBALEventRepository implements EventRepository
 {
     public function __construct(
-        private Connection $connection,
-        private Encoder $jsonEncoder,
-        private EventConverter $eventConverter,
+        private readonly Connection $connection,
+        private readonly Encoder $jsonEncoder,
+        private readonly EventConverter $eventConverter,
     ) {
     }
 
@@ -76,7 +77,7 @@ final class DBALEventRepository implements EventRepository
     {
         return $this->parseStream(
             $aggregateRootId,
-            $this->connection->fetchAllAssociative(
+            $this->connection->iterateAssociative(
                 'SELECT
                     event_id,
                     event_name,
@@ -87,8 +88,8 @@ final class DBALEventRepository implements EventRepository
                 FROM ' . $streamName . '
                 WHERE aggregate_id = ?
                 ORDER BY version ASC',
-                [(string) $aggregateRootId],
-                ['string'],
+                [$aggregateRootId->toString()],
+                [Types::STRING],
             ),
             $metadata,
         );
@@ -106,7 +107,7 @@ final class DBALEventRepository implements EventRepository
     ): Stream {
         return $this->parseStream(
             $aggregateRootId,
-            $this->connection->fetchAllAssociative(
+            $this->connection->iterateAssociative(
                 'SELECT
                     event_id,
                     event_name,
@@ -117,25 +118,25 @@ final class DBALEventRepository implements EventRepository
                 FROM ' . $streamName . '
                 WHERE aggregate_id = ? AND version > ?
                 ORDER BY version ASC',
-                [(string) $aggregateRootId, $aggregateVersion],
-                ['string', 'integer'],
+                [$aggregateRootId->toString(), $aggregateVersion],
+                [Types::STRING, Types::INTEGER],
             ),
             $metadata,
         );
     }
 
     /**
-     * @param array<int, array<string, mixed>> $result
+     * @param iterable<int, array<string, mixed>> $result
      *
      * @throws EncodingFailed
      */
     private function parseStream(
         AggregateRootId $aggregateRootId,
-        array $result,
+        iterable $result,
         StreamMetadata $metadata,
     ): Stream {
         $events = [];
-        $stringAggregateRootId = (string) $aggregateRootId;
+        $stringAggregateRootId = $aggregateRootId->toString();
 
         foreach ($result as $eventData) {
             /**

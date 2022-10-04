@@ -11,7 +11,7 @@ abstract class AggregateRoot
 {
     use AttributeListenerAware;
 
-    /** @var Event[] */
+    /** @var list<Event> */
     protected array $recordedEvents = [];
     protected int $version = 0;
 
@@ -29,7 +29,7 @@ abstract class AggregateRoot
         return $this->version;
     }
 
-    /** @return Event[] */
+    /** @return list<Event> */
     public function popRecordedEvents(): array
     {
         $pending = $this->recordedEvents;
