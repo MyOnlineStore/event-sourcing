@@ -11,9 +11,9 @@ use MyOnlineStore\EventSourcing\Event\StreamMetadata;
 final class EncryptionKeyGeneratingEventRepository implements EventRepository
 {
     public function __construct(
-        private EventRepository $innerRepository,
-        private KeyGenerator $keyGenerator,
-        private MetadataRepository $metadataRepository,
+        private readonly EventRepository $innerRepository,
+        private readonly KeyGenerator $keyGenerator,
+        private readonly MetadataRepository $metadataRepository,
     ) {
     }
 

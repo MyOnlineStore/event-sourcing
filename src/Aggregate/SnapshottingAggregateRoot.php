@@ -4,17 +4,15 @@ declare(strict_types=1);
 namespace MyOnlineStore\EventSourcing\Aggregate;
 
 use MyOnlineStore\EventSourcing\Event\Stream;
-use MyOnlineStore\EventSourcing\Service\Assert;
 
 abstract class SnapshottingAggregateRoot extends AggregateRoot
 {
     public static function reconstituteFromSnapshotAndHistory(
         Snapshot $snapshot,
         Stream $eventStream,
-    ): SnapshottingAggregateRoot {
+    ): static {
         $instance = \unserialize(\base64_decode($snapshot->getState()));
-
-        Assert::isInstanceOf($instance, self::class);
+        \assert($instance instanceof static);
 
         foreach ($eventStream as $event) {
             $instance->apply($event);

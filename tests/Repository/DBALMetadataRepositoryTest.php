@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MyOnlineStore\EventSourcing\Tests\Repository;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Types\Types;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Event\StreamMetadata;
 use MyOnlineStore\EventSourcing\Repository\DBALMetadataRepository;
@@ -13,12 +14,8 @@ use PHPUnit\Framework\TestCase;
 
 final class DBALMetadataRepositoryTest extends TestCase
 {
-    /** @var Connection&MockObject */
-    private Connection $connection;
-
-    /** @var Encoder&MockObject */
-    private Encoder $jsonEncoder;
-
+    private Connection&MockObject $connection;
+    private Encoder&MockObject $jsonEncoder;
     private DBALMetadataRepository $repository;
 
     protected function setUp(): void
@@ -86,7 +83,7 @@ final class DBALMetadataRepositoryTest extends TestCase
             ->with(
                 'DELETE FROM stream_metadata WHERE aggregate_id = ?',
                 ['agg-id'],
-                ['string'],
+                [Types::STRING],
             );
 
         $this->repository->remove($streamName, $aggregateRootId);
@@ -114,8 +111,8 @@ final class DBALMetadataRepositoryTest extends TestCase
                     'metadata' => 'foobar_json',
                 ],
                 [
-                    'aggregate_id' => 'string',
-                    'metadata' => 'string',
+                    'aggregate_id' => Types::STRING,
+                    'metadata' => Types::STRING,
                 ],
             );
 

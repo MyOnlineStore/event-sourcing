@@ -5,6 +5,7 @@ namespace MyOnlineStore\EventSourcing\Repository;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Types\Types;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Event\StreamMetadata;
 use MyOnlineStore\EventSourcing\Exception\EncodingFailed;
@@ -28,7 +29,7 @@ final class DBALMetadataRepository implements MetadataRepository
         $result = $this->connection->fetchAssociative(
             'SELECT metadata FROM ' . $streamName . '_metadata WHERE aggregate_id = ?',
             [$aggregateRootId->toString()],
-            ['string'],
+            [Types::STRING],
         );
 
         /** @var array<string, string> $metadata */
@@ -43,7 +44,7 @@ final class DBALMetadataRepository implements MetadataRepository
         $this->connection->executeStatement(
             'DELETE FROM ' . $streamName . '_metadata WHERE aggregate_id = ?',
             [$aggregateRootId->toString()],
-            ['string'],
+            [Types::STRING],
         );
     }
 
@@ -61,8 +62,8 @@ final class DBALMetadataRepository implements MetadataRepository
                 'metadata' => $this->jsonEncoder->encode($metadata->getMetadata()),
             ],
             [
-                'aggregate_id' => 'string',
-                'metadata' => 'string',
+                'aggregate_id' => Types::STRING,
+                'metadata' => Types::STRING,
             ],
         );
     }

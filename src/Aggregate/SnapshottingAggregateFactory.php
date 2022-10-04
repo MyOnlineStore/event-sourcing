@@ -5,13 +5,14 @@ namespace MyOnlineStore\EventSourcing\Aggregate;
 
 use MyOnlineStore\EventSourcing\Event\Stream;
 
-/** @template T of SnapshottingAggregateRoot */
 interface SnapshottingAggregateFactory
 {
     /**
      * @param class-string<T> $aggregateName
      *
      * @return T
+     *
+     * @template T of SnapshottingAggregateRoot
      */
     public function reconstituteFromSnapshotAndHistory(
         string $aggregateName,

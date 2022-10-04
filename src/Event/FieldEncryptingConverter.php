@@ -8,8 +8,10 @@ use MyOnlineStore\EventSourcing\Exception\EncryptionFailed;
 
 final class FieldEncryptingConverter implements EventConverter
 {
-    public function __construct(private Encrypter $encrypter, private EventConverter $innerConverter)
-    {
+    public function __construct(
+        private readonly Encrypter $encrypter,
+        private readonly EventConverter $innerConverter,
+    ) {
     }
 
     /** @inheritDoc */

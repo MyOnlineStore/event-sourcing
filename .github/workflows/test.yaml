@@ -1,9 +1,9 @@
 name: Test
 
-on: push
-
-env:
-    COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+on:
+    push:
+        branches-ignore:
+            - master
 
 jobs:
     setup:

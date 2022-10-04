@@ -16,9 +16,8 @@ use MyOnlineStore\EventSourcing\Exception\SnapshotNotFound;
 final class SnapshottingAggregateRepository implements AggregateRepository
 {
     /**
-     * @param AggregateRepository<T>          $innerRepository
-     * @param class-string<T>                 $aggregateName
-     * @param SnapshottingAggregateFactory<T> $aggregateFactory
+     * @param AggregateRepository<T> $innerRepository
+     * @param class-string<T>        $aggregateName
      */
     public function __construct(
         private readonly AggregateRepository $innerRepository,

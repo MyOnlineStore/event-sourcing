@@ -11,7 +11,7 @@ use Ramsey\Uuid\Uuid;
 class AggregateRootId
 {
     final private function __construct(
-        private string $id,
+        private readonly string $id,
     ) {
     }
 
