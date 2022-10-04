@@ -47,7 +47,7 @@ final class InMemoryAggregateRepository implements AggregateRepository
         $this->aggregates[$aggregateRoot->getAggregateRootId()->toString()] = $aggregateRoot;
     }
 
-    public function assertIsEmpty(AggregateRootId $aggregateRootId): void
+    public function assertIsEmpty(): void
     {
         Assert::assertCount(0, $this->aggregates);
     }
