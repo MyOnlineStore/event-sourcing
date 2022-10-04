@@ -33,8 +33,8 @@ final class FQCNSnapshottingAggregateFactoryTest extends TestCase
             $this->factory->reconstituteFromSnapshotAndHistory(
                 BaseSnapshottingAggregateRoot::class,
                 $aggregateRoot->snapshot(),
-                new Stream([], new StreamMetadata([]))
-            )
+                new Stream([], new StreamMetadata([])),
+            ),
         );
     }
 
@@ -44,7 +44,7 @@ final class FQCNSnapshottingAggregateFactoryTest extends TestCase
         $this->factory->reconstituteFromSnapshotAndHistory(
             'foobar',
             new Snapshot($this->aggregateRootId, 1, ''),
-            new Stream([], new StreamMetadata([]))
+            new Stream([], new StreamMetadata([])),
         );
     }
 
@@ -54,7 +54,7 @@ final class FQCNSnapshottingAggregateFactoryTest extends TestCase
         $this->factory->reconstituteFromSnapshotAndHistory(
             \stdClass::class,
             new Snapshot($this->aggregateRootId, 1, ''),
-            new Stream([], new StreamMetadata([]))
+            new Stream([], new StreamMetadata([])),
         );
     }
 }

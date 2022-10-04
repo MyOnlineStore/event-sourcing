@@ -30,7 +30,7 @@ final class DBALEventRepositoryTest extends TestCase
         $this->repository = new DBALEventRepository(
             $this->connection = $this->createMock(Connection::class),
             $this->jsonEncoder = $this->createMock(Encoder::class),
-            $this->eventConverter = $this->createMock(EventConverter::class)
+            $this->eventConverter = $this->createMock(EventConverter::class),
         );
     }
 
@@ -61,7 +61,7 @@ final class DBALEventRepositoryTest extends TestCase
                     'metadata' => 'event2c',
                     'createdAt' => 'event2d',
                     'version' => 'event2e',
-                ]
+                ],
             );
 
         $this->jsonEncoder->expects(self::exactly(4))
@@ -70,13 +70,13 @@ final class DBALEventRepositoryTest extends TestCase
                 ['event1b'],
                 ['event1c'],
                 ['event2b'],
-                ['event2c']
+                ['event2c'],
             )
             ->willReturnOnConsecutiveCalls(
                 'event1b_json',
                 'event1c_json',
                 'event2b_json',
-                'event2c_json'
+                'event2c_json',
             );
 
         $this->connection->expects(self::once())->method('beginTransaction');
@@ -102,7 +102,7 @@ final class DBALEventRepositoryTest extends TestCase
                     'event2c_json',
                     'event2d',
                     'event2e',
-                ]
+                ],
             );
         $this->connection->expects(self::once())->method('commit');
 
@@ -156,7 +156,7 @@ final class DBALEventRepositoryTest extends TestCase
                         'created_at' => 'ts2',
                         'version' => 'v2',
                     ],
-                ]
+                ],
             );
 
         $this->jsonEncoder->expects(self::exactly(4))
@@ -204,12 +204,12 @@ final class DBALEventRepositoryTest extends TestCase
             )
             ->willReturnOnConsecutiveCalls(
                 $event1 = $this->createMock(Event::class),
-                $event2 = $this->createMock(Event::class)
+                $event2 = $this->createMock(Event::class),
             );
 
         self::assertEquals(
             new Stream([$event1, $event2], $metadata),
-            $this->repository->load($streamName, $aggregateRootId, $metadata)
+            $this->repository->load($streamName, $aggregateRootId, $metadata),
         );
     }
 
@@ -234,7 +234,7 @@ final class DBALEventRepositoryTest extends TestCase
                 FROM ' . $streamName . '
                 WHERE aggregate_id = ? AND version > ?
                 ORDER BY version ASC',
-                ['agg-id', 12]
+                ['agg-id', 12],
             )
             ->willReturn(
                 [
@@ -254,7 +254,7 @@ final class DBALEventRepositoryTest extends TestCase
                         'created_at' => 'ts2',
                         'version' => 'v2',
                     ],
-                ]
+                ],
             );
 
         $this->jsonEncoder->expects(self::exactly(4))
@@ -302,12 +302,12 @@ final class DBALEventRepositoryTest extends TestCase
             )
             ->willReturnOnConsecutiveCalls(
                 $event1 = $this->createMock(Event::class),
-                $event2 = $this->createMock(Event::class)
+                $event2 = $this->createMock(Event::class),
             );
 
         self::assertEquals(
             new Stream([$event1, $event2], $metadata),
-            $this->repository->loadAfterVersion($streamName, $aggregateRootId, $version, $metadata)
+            $this->repository->loadAfterVersion($streamName, $aggregateRootId, $version, $metadata),
         );
     }
 }

@@ -11,14 +11,12 @@ abstract class AggregateRoot
 {
     use AttributeListenerAware;
 
-    protected AggregateRootId $aggregateRootId;
     /** @var Event[] */
     protected array $recordedEvents = [];
     protected int $version = 0;
 
-    final protected function __construct(AggregateRootId $aggregateRootId)
+    final protected function __construct(protected AggregateRootId $aggregateRootId)
     {
-        $this->aggregateRootId = $aggregateRootId;
     }
 
     public function getAggregateRootId(): AggregateRootId
@@ -31,9 +29,7 @@ abstract class AggregateRoot
         return $this->version;
     }
 
-    /**
-     * @return Event[]
-     */
+    /** @return Event[] */
     public function popRecordedEvents(): array
     {
         $pending = $this->recordedEvents;

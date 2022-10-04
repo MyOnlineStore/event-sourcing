@@ -76,7 +76,7 @@ final class EncryptionKeyGeneratingEventRepositoryTest extends TestCase
 
         self::assertSame(
             $stream,
-            $this->repository->load($streamName, $aggregateId, $streamMetadata)
+            $this->repository->load($streamName, $aggregateId, $streamMetadata),
         );
     }
 
@@ -94,7 +94,7 @@ final class EncryptionKeyGeneratingEventRepositoryTest extends TestCase
 
         self::assertSame(
             $stream,
-            $this->repository->loadAfterVersion($streamName, $aggregateId, $version, $streamMetadata)
+            $this->repository->loadAfterVersion($streamName, $aggregateId, $version, $streamMetadata),
         );
     }
 }

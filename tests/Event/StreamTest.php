@@ -17,7 +17,7 @@ final class StreamTest extends TestCase
                 $event = $this->createMock(Event::class),
                 $event,
             ],
-            $metadata = new StreamMetadata([])
+            $metadata = new StreamMetadata([]),
         );
 
         self::assertSame([$event, $event], $stream->getArrayCopy());

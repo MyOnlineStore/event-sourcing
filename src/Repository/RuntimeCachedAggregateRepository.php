@@ -6,27 +6,30 @@ namespace MyOnlineStore\EventSourcing\Repository;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRoot;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 
+/**
+ * @template T of AggregateRoot
+ * @implements AggregateRepository<T>
+ */
 final class RuntimeCachedAggregateRepository implements AggregateRepository
 {
-    /** @var AggregateRoot[] */
+    /** @var array<string, T> */
     private array $aggregates = [];
-    private AggregateRepository $innerRepository;
 
-    public function __construct(AggregateRepository $innerRepository)
+    /** @param AggregateRepository<T> $innerRepository */
+    public function __construct(private AggregateRepository $innerRepository)
     {
-        $this->innerRepository = $innerRepository;
     }
 
     public function save(AggregateRoot $aggregateRoot): void
     {
         $this->innerRepository->save($aggregateRoot);
         // @todo When concurrency is handled, a save should invalidate the runtime cache
-        $this->aggregates[(string) $aggregateRoot->getAggregateRootId()] = $aggregateRoot;
+        $this->aggregates[$aggregateRoot->getAggregateRootId()->toString()] = $aggregateRoot;
     }
 
     public function load(AggregateRootId $aggregateRootId): AggregateRoot
     {
-        $aggregateRootIdString = (string) $aggregateRootId;
+        $aggregateRootIdString = $aggregateRootId->toString();
 
         if (!isset($this->aggregates[$aggregateRootIdString])) {
             $this->aggregates[$aggregateRootIdString] = $this->innerRepository->load($aggregateRootId);

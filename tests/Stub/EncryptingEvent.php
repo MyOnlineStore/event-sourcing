@@ -8,9 +8,7 @@ use MyOnlineStore\EventSourcing\Event\FieldEncrypting;
 
 abstract class EncryptingEvent implements Event, FieldEncrypting
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public static function getEncryptingFields(): array
     {
         return ['foo'];

@@ -3,20 +3,12 @@ declare(strict_types=1);
 
 namespace MyOnlineStore\EventSourcing\Event;
 
-/**
- * @extends \ArrayObject<array-key, Event>
- */
+/** @extends \ArrayObject<array-key, Event> */
 final class Stream extends \ArrayObject
 {
-    private StreamMetadata $metadata;
-
-    /**
-     * @param Event[] $events
-     */
-    public function __construct(iterable $events, StreamMetadata $metadata)
+    /** @param Event[] $events */
+    public function __construct(iterable $events, private StreamMetadata $metadata)
     {
-        $this->metadata = $metadata;
-
         parent::__construct($events);
     }
 

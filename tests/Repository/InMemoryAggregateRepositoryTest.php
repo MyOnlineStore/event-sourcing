@@ -17,14 +17,14 @@ final class InMemoryAggregateRepositoryTest extends TestCase
     {
         $this->repository = new InMemoryAggregateRepository(
             new FQCNAggregateFactory(),
-            BaseAggregateRoot::class
+            BaseAggregateRoot::class,
         );
     }
 
     public function testInMemoryRepository(): void
     {
         $aggregateA = BaseAggregateRoot::createForTest(
-            $aggregateIdA = AggregateRootId::generate()
+            $aggregateIdA = AggregateRootId::generate(),
         );
 
         $this->repository->save($aggregateA);

@@ -19,7 +19,7 @@ final class DBALEventRepository implements EventRepository
     public function __construct(
         private Connection $connection,
         private Encoder $jsonEncoder,
-        private EventConverter $eventConverter
+        private EventConverter $eventConverter,
     ) {
     }
 
@@ -88,9 +88,9 @@ final class DBALEventRepository implements EventRepository
                 WHERE aggregate_id = ?
                 ORDER BY version ASC',
                 [(string) $aggregateRootId],
-                ['string']
+                ['string'],
             ),
-            $metadata
+            $metadata,
         );
     }
 
@@ -102,7 +102,7 @@ final class DBALEventRepository implements EventRepository
         string $streamName,
         AggregateRootId $aggregateRootId,
         int $aggregateVersion,
-        StreamMetadata $metadata
+        StreamMetadata $metadata,
     ): Stream {
         return $this->parseStream(
             $aggregateRootId,
@@ -118,9 +118,9 @@ final class DBALEventRepository implements EventRepository
                 WHERE aggregate_id = ? AND version > ?
                 ORDER BY version ASC',
                 [(string) $aggregateRootId, $aggregateVersion],
-                ['string', 'integer']
+                ['string', 'integer'],
             ),
-            $metadata
+            $metadata,
         );
     }
 
@@ -132,7 +132,7 @@ final class DBALEventRepository implements EventRepository
     private function parseStream(
         AggregateRootId $aggregateRootId,
         array $result,
-        StreamMetadata $metadata
+        StreamMetadata $metadata,
     ): Stream {
         $events = [];
         $stringAggregateRootId = (string) $aggregateRootId;
@@ -161,7 +161,7 @@ final class DBALEventRepository implements EventRepository
                     'createdAt' => $eventData['created_at'],
                     'version' => $eventData['version'],
                 ],
-                $metadata
+                $metadata,
             );
         }
 

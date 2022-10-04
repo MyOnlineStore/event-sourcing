@@ -9,9 +9,7 @@ use MyOnlineStore\EventSourcing\Exception\SnapshotNotFound;
 
 interface SnapshotRepository
 {
-    /**
-     * @throws SnapshotNotFound
-     */
+    /** @throws SnapshotNotFound */
     public function load(string $streamName, AggregateRootId $aggregateRootId): Snapshot;
 
     public function save(string $streamName, Snapshot $snapshot): void;

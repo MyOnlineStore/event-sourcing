@@ -19,7 +19,7 @@ final class SnapshottingAggregateRootTest extends TestCase
     protected function setUp(): void
     {
         $this->aggregateRoot = BaseSnapshottingAggregateRoot::createForTest(
-            $this->aggregateRootId = $this->createMock(AggregateRootId::class)
+            $this->aggregateRootId = $this->createMock(AggregateRootId::class),
         );
     }
 
@@ -31,9 +31,9 @@ final class SnapshottingAggregateRootTest extends TestCase
             new Snapshot(
                 $this->aggregateRootId,
                 1,
-                \base64_encode(\serialize($this->aggregateRoot))
+                \base64_encode(\serialize($this->aggregateRoot)),
             ),
-            $this->aggregateRoot->snapshot()
+            $this->aggregateRoot->snapshot(),
         );
     }
 
@@ -43,7 +43,7 @@ final class SnapshottingAggregateRootTest extends TestCase
 
         $aggregateRoot = BaseSnapshottingAggregateRoot::reconstituteFromSnapshotAndHistory(
             $this->aggregateRoot->snapshot(),
-            new Stream([], new StreamMetadata([]))
+            new Stream([], new StreamMetadata([])),
         );
 
         self::assertInstanceOf(BaseSnapshottingAggregateRoot::class, $aggregateRoot);
@@ -59,8 +59,8 @@ final class SnapshottingAggregateRootTest extends TestCase
             $this->aggregateRoot->snapshot(),
             new Stream(
                 [BaseEvent::occur($this->aggregateRootId, ['foo' => 'qux'])->withVersion(2)],
-                new StreamMetadata([])
-            )
+                new StreamMetadata([]),
+            ),
         );
 
         self::assertInstanceOf(BaseSnapshottingAggregateRoot::class, $aggregateRoot);

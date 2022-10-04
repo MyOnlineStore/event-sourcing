@@ -7,13 +7,9 @@ use MyOnlineStore\EventSourcing\Exception\EncodingFailed;
 
 interface Encoder
 {
-    /**
-     * @throws EncodingFailed
-     */
+    /** @throws EncodingFailed */
     public function encode(mixed $value): string;
 
-    /**
-     * @throws EncodingFailed
-     */
+    /** @throws EncodingFailed */
     public function decode(string $value): mixed;
 }

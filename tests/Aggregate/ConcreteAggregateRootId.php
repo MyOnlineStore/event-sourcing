@@ -5,9 +5,7 @@ namespace MyOnlineStore\EventSourcing\Tests\Aggregate;
 
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 final class ConcreteAggregateRootId extends AggregateRootId
 {
 }

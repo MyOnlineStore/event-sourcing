@@ -10,7 +10,7 @@ use MyOnlineStore\EventSourcing\Projection\Projector;
 final class BaseProjector extends Projector
 {
     public function __construct(
-        private \stdClass $model
+        private \stdClass $model,
     ) {
     }
 

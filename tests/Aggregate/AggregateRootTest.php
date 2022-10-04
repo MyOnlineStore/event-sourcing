@@ -18,7 +18,7 @@ final class AggregateRootTest extends TestCase
     protected function setUp(): void
     {
         $this->aggregateRoot = BaseAggregateRoot::createForTest(
-            $this->aggregateRootId = $this->createMock(AggregateRootId::class)
+            $this->aggregateRootId = $this->createMock(AggregateRootId::class),
         );
     }
 
@@ -45,8 +45,8 @@ final class AggregateRootTest extends TestCase
             $this->aggregateRootId,
             new Stream(
                 [BaseEvent::occur($this->aggregateRootId, ['foo' => 'qux'])],
-                new StreamMetadata([])
-            )
+                new StreamMetadata([]),
+            ),
         );
 
         self::assertSame(1, $aggregateRoot->getVersion());

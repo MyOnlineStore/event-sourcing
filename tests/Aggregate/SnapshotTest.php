@@ -14,7 +14,7 @@ final class SnapshotTest extends TestCase
         $snapshot = new Snapshot(
             $aggregateId = $this->createMock(AggregateRootId::class),
             10,
-            'foobar'
+            'foobar',
         );
 
         self::assertSame($aggregateId, $snapshot->getAggregateRootId());

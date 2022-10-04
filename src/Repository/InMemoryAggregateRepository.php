@@ -8,6 +8,7 @@ use MyOnlineStore\EventSourcing\Aggregate\AggregateRoot;
 use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Event\Stream;
 use MyOnlineStore\EventSourcing\Event\StreamMetadata;
+use PHPUnit\Framework\Assert;
 
 /**
  * @template T of AggregateRoot
@@ -19,11 +20,12 @@ final class InMemoryAggregateRepository implements AggregateRepository
     private array $aggregates = [];
 
     /**
-     * @param class-string<T> $aggregateName
+     * @param AggregateFactory<T> $aggregateFactory
+     * @param class-string<T>     $aggregateName
      */
     public function __construct(
-        private AggregateFactory $aggregateFactory,
-        private string $aggregateName
+        private readonly AggregateFactory $aggregateFactory,
+        private readonly string $aggregateName,
     ) {
     }
 
@@ -33,7 +35,7 @@ final class InMemoryAggregateRepository implements AggregateRepository
             $this->aggregates[$aggregateRootId->toString()] = $this->aggregateFactory->reconstituteFromHistory(
                 $this->aggregateName,
                 $aggregateRootId,
-                new Stream([], new StreamMetadata([]))
+                new Stream([], new StreamMetadata([])),
             );
         }
 
@@ -43,5 +45,20 @@ final class InMemoryAggregateRepository implements AggregateRepository
     public function save(AggregateRoot $aggregateRoot): void
     {
         $this->aggregates[$aggregateRoot->getAggregateRootId()->toString()] = $aggregateRoot;
+    }
+
+    public function assertIsEmpty(AggregateRootId $aggregateRootId): void
+    {
+        Assert::assertCount(0, $this->aggregates);
+    }
+
+    public function assertContains(AggregateRootId $aggregateRootId): void
+    {
+        Assert::assertArrayHasKey($aggregateRootId->toString(), $this->aggregates);
+    }
+
+    public function assertNotContains(AggregateRootId $aggregateRootId): void
+    {
+        Assert::assertArrayNotHasKey($aggregateRootId->toString(), $this->aggregates);
     }
 }

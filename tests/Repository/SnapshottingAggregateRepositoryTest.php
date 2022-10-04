@@ -48,11 +48,11 @@ final class SnapshottingAggregateRepositoryTest extends TestCase
             $this->snapshotRepository = $this->createMock(SnapshotRepository::class),
             $this->aggregateFactory = $this->createMock(SnapshottingAggregateFactory::class),
             $this->aggregateName = 'aggregate_name',
-            $this->streamName = 'stream_name'
+            $this->streamName = 'stream_name',
         );
 
         $this->aggregateRoot = BaseSnapshottingAggregateRoot::createForTest(
-            $this->aggregateRootId = $this->createMock(AggregateRootId::class)
+            $this->aggregateRootId = $this->createMock(AggregateRootId::class),
         );
     }
 
@@ -74,7 +74,7 @@ final class SnapshottingAggregateRepositoryTest extends TestCase
                 $this->streamName,
                 $this->aggregateRootId,
                 12,
-                $metadata
+                $metadata,
             )
             ->willReturn($stream = new Stream([], $metadata));
 
@@ -83,7 +83,7 @@ final class SnapshottingAggregateRepositoryTest extends TestCase
             ->with(
                 $this->aggregateName,
                 $snapshot,
-                $stream
+                $stream,
             )
             ->willReturn($this->aggregateRoot);
 
@@ -123,7 +123,7 @@ final class SnapshottingAggregateRepositoryTest extends TestCase
                 $this->streamName,
                 $this->aggregateRootId,
                 12,
-                $metadata
+                $metadata,
             )
             ->willReturn($stream = new Stream([], $metadata));
 
@@ -132,7 +132,7 @@ final class SnapshottingAggregateRepositoryTest extends TestCase
             ->with(
                 $this->aggregateName,
                 $snapshot,
-                $stream
+                $stream,
             )
             ->willThrowException(new \TypeError());
 

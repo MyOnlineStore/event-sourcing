@@ -7,19 +7,15 @@ use MyOnlineStore\EventSourcing\Exception\AssertionFailed;
 use MyOnlineStore\EventSourcing\Service\Assert;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 class AggregateRootId
 {
     final private function __construct(
-        private string $id
+        private string $id,
     ) {
     }
 
-    /**
-     * @psalm-pure
-     */
+    /** @psalm-pure */
     public static function fromAggregateRootId(self $aggregateRootId): static
     {
         return new static($aggregateRootId->id);
@@ -37,9 +33,7 @@ class AggregateRootId
         return new static($aggregateRootId);
     }
 
-    /**
-     * @psalm-pure
-     */
+    /** @psalm-pure */
     public static function generate(): static
     {
         /**

@@ -42,7 +42,7 @@ final class DBALMetadataRepositoryTest extends TestCase
                 [
                     'aggregate_id' => 'agg-id',
                     'metadata' => 'met_json',
-                ]
+                ],
             );
 
         $this->jsonEncoder->expects(self::once())
@@ -52,7 +52,7 @@ final class DBALMetadataRepositoryTest extends TestCase
 
         self::assertEquals(
             new StreamMetadata(['meta' => 'data']),
-            $this->repository->load($streamName, $aggregateRootId)
+            $this->repository->load($streamName, $aggregateRootId),
         );
     }
 
@@ -71,7 +71,7 @@ final class DBALMetadataRepositoryTest extends TestCase
 
         self::assertEquals(
             new StreamMetadata([]),
-            $this->repository->load($streamName, $aggregateRootId)
+            $this->repository->load($streamName, $aggregateRootId),
         );
     }
 
@@ -86,7 +86,7 @@ final class DBALMetadataRepositoryTest extends TestCase
             ->with(
                 'DELETE FROM stream_metadata WHERE aggregate_id = ?',
                 ['agg-id'],
-                ['string']
+                ['string'],
             );
 
         $this->repository->remove($streamName, $aggregateRootId);
@@ -116,7 +116,7 @@ final class DBALMetadataRepositoryTest extends TestCase
                 [
                     'aggregate_id' => 'string',
                     'metadata' => 'string',
-                ]
+                ],
             );
 
         $this->repository->save($streamName, $aggregateRootId, $metadata);

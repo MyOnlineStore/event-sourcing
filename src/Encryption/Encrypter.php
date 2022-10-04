@@ -7,13 +7,9 @@ use MyOnlineStore\EventSourcing\Exception\EncryptionFailed;
 
 interface Encrypter
 {
-    /**
-     * @throws EncryptionFailed
-     */
+    /** @throws EncryptionFailed */
     public function decrypt(string $key, string $value): string;
 
-    /**
-     * @throws EncryptionFailed
-     */
+    /** @throws EncryptionFailed */
     public function encrypt(string $key, string $value): string;
 }

@@ -11,7 +11,7 @@ final class FQCNSnapshottingAggregateFactory implements SnapshottingAggregateFac
     public function reconstituteFromSnapshotAndHistory(
         string $aggregateName,
         Snapshot $snapshot,
-        Stream $eventStream
+        Stream $eventStream,
     ): AggregateRoot {
         Assert::classExists($aggregateName);
         /** @psalm-suppress DocblockTypeContradiction */

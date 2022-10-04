@@ -22,7 +22,7 @@ final class FQCNAggregateFactoryTest extends TestCase
     public function testReconstituteFromHistory(): void
     {
         $aggregateRoot = BaseAggregateRoot::createForTest(
-            $aggregateRootId = $this->createMock(AggregateRootId::class)
+            $aggregateRootId = $this->createMock(AggregateRootId::class),
         );
 
         self::assertEquals(
@@ -30,8 +30,8 @@ final class FQCNAggregateFactoryTest extends TestCase
             $this->factory->reconstituteFromHistory(
                 BaseAggregateRoot::class,
                 $aggregateRootId,
-                new Stream([], new StreamMetadata([]))
-            )
+                new Stream([], new StreamMetadata([])),
+            ),
         );
     }
 }
