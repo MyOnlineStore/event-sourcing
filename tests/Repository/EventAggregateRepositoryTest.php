@@ -30,7 +30,7 @@ final class EventAggregateRepositoryTest extends TestCase
             $this->eventRepository = $this->createMock(EventRepository::class),
             $this->metadataRepository = $this->createMock(MetadataRepository::class),
             $this->aggregateName = 'foo',
-            $this->streamName = 'foo_stream'
+            $this->streamName = 'foo_stream',
         );
     }
 
@@ -51,7 +51,7 @@ final class EventAggregateRepositoryTest extends TestCase
                 $events = new Stream(
                     [$event = $this->createMock(Event::class), $event],
                     $metadata,
-                )
+                ),
             );
 
         $this->aggregateFactory->expects(self::once())

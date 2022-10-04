@@ -16,7 +16,7 @@ final class AggregateRootIdTest extends TestCase
         self::assertTrue($aggregateRootId->equals($aggregateRootId));
         self::assertTrue($aggregateRootId->equals(AggregateRootId::fromString('8311db73-de57-4fb0-b8bc-84dc37296c1e')));
         self::assertFalse(
-            $aggregateRootId->equals(AggregateRootId::fromString('8311db73-de57-4fb0-b8bc-84dc37296c1f'))
+            $aggregateRootId->equals(AggregateRootId::fromString('8311db73-de57-4fb0-b8bc-84dc37296c1f')),
         );
     }
 

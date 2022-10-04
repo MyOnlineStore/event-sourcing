@@ -26,7 +26,7 @@ final class FieldEncryptingConverterTest extends TestCase
     {
         $this->converter = new FieldEncryptingConverter(
             $this->encrypter = $this->createMock(Encrypter::class),
-            $this->innerConverter = $this->createMock(EventConverter::class)
+            $this->innerConverter = $this->createMock(EventConverter::class),
         );
 
         $this->streamMetadata = new StreamMetadata(['encryption_key' => 'foo']);
@@ -62,7 +62,7 @@ final class FieldEncryptingConverterTest extends TestCase
 
         self::assertSame(
             ['payload' => ['foo' => 'encrypted_bar']],
-            $this->converter->convertToArray($event, $this->streamMetadata)
+            $this->converter->convertToArray($event, $this->streamMetadata),
         );
     }
 
@@ -79,7 +79,7 @@ final class FieldEncryptingConverterTest extends TestCase
 
         self::assertSame(
             ['payload' => ['foo' => null, 'bar' => '']],
-            $this->converter->convertToArray($event, $this->streamMetadata)
+            $this->converter->convertToArray($event, $this->streamMetadata),
         );
     }
 
@@ -118,8 +118,8 @@ final class FieldEncryptingConverterTest extends TestCase
             $this->converter->createFromArray(
                 $eventName,
                 ['payload' => ['foo' => 'bar_encrypted']],
-                $this->streamMetadata
-            )
+                $this->streamMetadata,
+            ),
         );
     }
 
@@ -143,8 +143,8 @@ final class FieldEncryptingConverterTest extends TestCase
             $this->converter->createFromArray(
                 $eventName,
                 ['payload' => ['foo' => 'bar_encrypted']],
-                $this->streamMetadata
-            )
+                $this->streamMetadata,
+            ),
         );
     }
 
@@ -165,8 +165,8 @@ final class FieldEncryptingConverterTest extends TestCase
             $this->converter->createFromArray(
                 $eventName,
                 ['payload' => ['bar' => 'bar_unencrypted']],
-                $this->streamMetadata
-            )
+                $this->streamMetadata,
+            ),
         );
     }
 }

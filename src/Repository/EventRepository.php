@@ -17,6 +17,6 @@ interface EventRepository
         string $streamName,
         AggregateRootId $aggregateRootId,
         int $aggregateVersion,
-        StreamMetadata $metadata
+        StreamMetadata $metadata,
     ): Stream;
 }

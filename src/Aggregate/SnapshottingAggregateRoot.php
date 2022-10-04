@@ -10,7 +10,7 @@ abstract class SnapshottingAggregateRoot extends AggregateRoot
 {
     public static function reconstituteFromSnapshotAndHistory(
         Snapshot $snapshot,
-        Stream $eventStream
+        Stream $eventStream,
     ): SnapshottingAggregateRoot {
         $instance = \unserialize(\base64_decode($snapshot->getState()));
 

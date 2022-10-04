@@ -12,13 +12,10 @@ use MyOnlineStore\EventSourcing\Service\Encoder;
 
 final class DBALMetadataRepository implements MetadataRepository
 {
-    private Connection $connection;
-    private Encoder $jsonEncoder;
-
-    public function __construct(Connection $connection, Encoder $jsonEncoder)
-    {
-        $this->connection = $connection;
-        $this->jsonEncoder = $jsonEncoder;
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly Encoder $jsonEncoder,
+    ) {
     }
 
     /**
@@ -27,28 +24,26 @@ final class DBALMetadataRepository implements MetadataRepository
      */
     public function load(string $streamName, AggregateRootId $aggregateRootId): StreamMetadata
     {
-        /** @psalm-var array{metadata: string}|false $result */
+        /** @var array{metadata: string}|false $result */
         $result = $this->connection->fetchAssociative(
             'SELECT metadata FROM ' . $streamName . '_metadata WHERE aggregate_id = ?',
             [$aggregateRootId->toString()],
-            ['string']
+            ['string'],
         );
 
-        /** @psalm-var array<string, string> $metadata */
+        /** @var array<string, string> $metadata */
         $metadata = $result ? (array) $this->jsonEncoder->decode($result['metadata']) : [];
 
         return new StreamMetadata($metadata);
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     public function remove(string $streamName, AggregateRootId $aggregateRootId): void
     {
         $this->connection->executeStatement(
             'DELETE FROM ' . $streamName . '_metadata WHERE aggregate_id = ?',
             [$aggregateRootId->toString()],
-            ['string']
+            ['string'],
         );
     }
 
@@ -68,7 +63,7 @@ final class DBALMetadataRepository implements MetadataRepository
             [
                 'aggregate_id' => 'string',
                 'metadata' => 'string',
-            ]
+            ],
         );
     }
 }

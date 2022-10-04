@@ -10,9 +10,7 @@ trait AttributeListenerAware
     /** @var array<string, array<string, list<callable>>> */
     private array $listeners = [];
 
-    /**
-     * @return array<string, list<callable>>
-     */
+    /** @return array<string, list<callable>> */
     protected function getListeners(string $event): array
     {
         $objectHash = \spl_object_hash($this);

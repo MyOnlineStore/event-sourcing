@@ -12,12 +12,12 @@ final class SnapshotNotFoundTest extends TestCase
     public function testWithAggregateRootId(): void
     {
         $exception = SnapshotNotFound::withAggregateRootId(
-            AggregateRootId::fromString('8311db73-de57-4fb0-b8bc-84dc37296c1e')
+            AggregateRootId::fromString('8311db73-de57-4fb0-b8bc-84dc37296c1e'),
         );
 
         self::assertStringContainsString(
             '8311db73-de57-4fb0-b8bc-84dc37296c1e',
-            $exception->getMessage()
+            $exception->getMessage(),
         );
     }
 }

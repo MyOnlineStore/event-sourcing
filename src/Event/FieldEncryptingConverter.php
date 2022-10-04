@@ -8,18 +8,11 @@ use MyOnlineStore\EventSourcing\Exception\EncryptionFailed;
 
 final class FieldEncryptingConverter implements EventConverter
 {
-    private Encrypter $encrypter;
-    private EventConverter $innerConverter;
-
-    public function __construct(Encrypter $encrypter, EventConverter $innerConverter)
+    public function __construct(private Encrypter $encrypter, private EventConverter $innerConverter)
     {
-        $this->encrypter = $encrypter;
-        $this->innerConverter = $innerConverter;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function convertToArray(Event $event, StreamMetadata $streamMetadata): array
     {
         $data = $this->innerConverter->convertToArray($event, $streamMetadata);
@@ -35,16 +28,14 @@ final class FieldEncryptingConverter implements EventConverter
 
             $data['payload'][$field] = $this->encrypter->encrypt(
                 $streamMetadata->getEncryptionKey(),
-                (string) $data['payload'][$field]
+                (string) $data['payload'][$field],
             );
         }
 
         return $data;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function createFromArray(string $eventName, array $data, StreamMetadata $streamMetadata): Event
     {
         if (!\is_subclass_of($eventName, FieldEncrypting::class)) {
@@ -59,7 +50,7 @@ final class FieldEncryptingConverter implements EventConverter
             try {
                 $data['payload'][$field] = $this->encrypter->decrypt(
                     $streamMetadata->getEncryptionKey(),
-                    (string) $data['payload'][$field]
+                    (string) $data['payload'][$field],
                 );
             } catch (EncryptionFailed) {
                 $data['payload'][$field] = null;

@@ -7,9 +7,7 @@ use MyOnlineStore\EventSourcing\Service\Assert;
 
 final class ArraySerializableEventConverter implements EventConverter
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function convertToArray(Event $event, StreamMetadata $streamMetadata): array
     {
         Assert::isInstanceOf($event, ArraySerializable::class);
@@ -17,9 +15,7 @@ final class ArraySerializableEventConverter implements EventConverter
         return $event->toArray();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function createFromArray(string $eventName, array $data, StreamMetadata $streamMetadata): Event
     {
         Assert::classExists($eventName);

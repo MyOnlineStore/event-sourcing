@@ -17,7 +17,7 @@ final class RuntimeCachedAggregateRepositoryTest extends TestCase
     protected function setUp(): void
     {
         $this->repository = new RuntimeCachedAggregateRepository(
-            $this->innerRepository = $this->createMock(AggregateRepository::class)
+            $this->innerRepository = $this->createMock(AggregateRepository::class),
         );
     }
 

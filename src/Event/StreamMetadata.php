@@ -5,15 +5,9 @@ namespace MyOnlineStore\EventSourcing\Event;
 
 final class StreamMetadata
 {
-    /** @var array<string, string> */
-    private array $metadata;
-
-    /**
-     * @param array<string, string> $metadata
-     */
-    public function __construct(array $metadata)
+    /** @param array<string, string> $metadata */
+    public function __construct(private array $metadata)
     {
-        $this->metadata = $metadata;
     }
 
     public function getEncryptionKey(): string
@@ -21,9 +15,7 @@ final class StreamMetadata
         return $this->metadata['encryption_key'] ?? '';
     }
 
-    /**
-     * @return array<string, string>
-     */
+    /** @return array<string, string> */
     public function getMetadata(): array
     {
         return $this->metadata;

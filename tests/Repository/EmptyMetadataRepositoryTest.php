@@ -21,7 +21,7 @@ final class EmptyMetadataRepositoryTest extends TestCase
     {
         self::assertEquals(
             new StreamMetadata([]),
-            $this->repository->load('stream', $this->createMock(AggregateRootId::class))
+            $this->repository->load('stream', $this->createMock(AggregateRootId::class)),
         );
     }
 
@@ -33,7 +33,7 @@ final class EmptyMetadataRepositoryTest extends TestCase
 
         self::assertEquals(
             new StreamMetadata([]),
-            $this->repository->load('stream', $this->createMock(AggregateRootId::class))
+            $this->repository->load('stream', $this->createMock(AggregateRootId::class)),
         );
     }
 
@@ -45,7 +45,7 @@ final class EmptyMetadataRepositoryTest extends TestCase
 
         self::assertEquals(
             new StreamMetadata([]),
-            $this->repository->load('stream', $this->createMock(AggregateRootId::class))
+            $this->repository->load('stream', $this->createMock(AggregateRootId::class)),
         );
     }
 }

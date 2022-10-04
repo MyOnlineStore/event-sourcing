@@ -91,7 +91,7 @@ final class BaseEventTest extends TestCase
                 'payload' => ['foo' => 'bar'],
                 'metadata' => ['baz' => 'qux'],
                 'version' => 5,
-            ]
+            ],
         );
 
         self::assertEquals(EventId::fromString('8311db73-de57-4fb0-b8bc-84dc37296c1e'), $event->getId());
@@ -99,9 +99,9 @@ final class BaseEventTest extends TestCase
             \DateTimeImmutable::createFromFormat(
                 'Y-m-d H:i:s.u',
                 '2019-08-21 14:31:30.374870',
-                new \DateTimeZone('UTC')
+                new \DateTimeZone('UTC'),
             ),
-            $event->getCreatedAt()
+            $event->getCreatedAt(),
         );
         self::assertSame(['foo' => 'bar'], $event->getPayload());
         self::assertSame(['baz' => 'qux'], $event->getMetadata());

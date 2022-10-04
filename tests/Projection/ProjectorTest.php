@@ -24,8 +24,8 @@ final class ProjectorTest extends TestCase
         ($this->projector)(
             BaseEvent::occur(
                 $this->createMock(AggregateRootId::class),
-                ['foo' => 'bar']
-            )
+                ['foo' => 'bar'],
+            ),
         );
 
         self::assertSame('bar', $this->model->foo);

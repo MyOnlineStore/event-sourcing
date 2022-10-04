@@ -34,7 +34,7 @@ final class MessageDispatchingEventRepository implements EventRepository
         string $streamName,
         AggregateRootId $aggregateRootId,
         int $aggregateVersion,
-        StreamMetadata $metadata
+        StreamMetadata $metadata,
     ): Stream {
         return $this->innerRepository->loadAfterVersion($streamName, $aggregateRootId, $aggregateVersion, $metadata);
     }

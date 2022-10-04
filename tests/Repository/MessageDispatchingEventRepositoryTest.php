@@ -28,7 +28,7 @@ final class MessageDispatchingEventRepositoryTest extends TestCase
     {
         $this->repository = new MessageDispatchingEventRepository(
             $this->innerRepository = $this->createMock(EventRepository::class),
-            $this->messageDispatcher = $this->createMock(MessageDispatcher::class)
+            $this->messageDispatcher = $this->createMock(MessageDispatcher::class),
         );
     }
 
@@ -41,7 +41,7 @@ final class MessageDispatchingEventRepositoryTest extends TestCase
                 $event1 = $this->createMock(Event::class),
                 $event2 = $this->createMock(Event::class),
             ],
-            new StreamMetadata([])
+            new StreamMetadata([]),
         );
 
         $this->innerRepository->expects(self::once())
@@ -71,7 +71,7 @@ final class MessageDispatchingEventRepositoryTest extends TestCase
                 $event = $this->createMock(Event::class),
                 $event,
             ],
-            $metadata = new StreamMetadata([])
+            $metadata = new StreamMetadata([]),
         );
 
         $this->innerRepository->expects(self::once())
@@ -94,7 +94,7 @@ final class MessageDispatchingEventRepositoryTest extends TestCase
                 $event = $this->createMock(Event::class),
                 $event,
             ],
-            $metadata = new StreamMetadata([])
+            $metadata = new StreamMetadata([]),
         );
 
         $this->innerRepository->expects(self::once())
@@ -106,7 +106,7 @@ final class MessageDispatchingEventRepositoryTest extends TestCase
 
         self::assertSame(
             $eventStream,
-            $this->repository->loadAfterVersion($streamName, $aggregateRootId, $version, $metadata)
+            $this->repository->loadAfterVersion($streamName, $aggregateRootId, $version, $metadata),
         );
     }
 }

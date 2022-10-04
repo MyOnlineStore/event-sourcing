@@ -7,9 +7,7 @@ use MyOnlineStore\EventSourcing\Aggregate\AggregateRootId;
 use MyOnlineStore\EventSourcing\Exception\AssertionFailed;
 use MyOnlineStore\EventSourcing\Service\Assert;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 class BaseEvent implements ArraySerializable
 {
     private const CREATED_FORMAT = 'Y-m-d H:i:s.u';
@@ -25,7 +23,7 @@ class BaseEvent implements ArraySerializable
     final private function __construct(
         private AggregateRootId $aggregateId,
         private array $payload,
-        private array $metadata = []
+        private array $metadata = [],
     ) {
     }
 
@@ -56,11 +54,11 @@ class BaseEvent implements ArraySerializable
 
         $event = new static(AggregateRootId::fromString($data['aggregateId']), $data['payload'], $data['metadata']);
         $event->id = EventId::fromString($data['eventId']);
-        /** @psalm-suppress PossiblyFalsePropertyAssignmentValue */
+        /** @psalm-suppress ImpureMethodCall, PossiblyFalsePropertyAssignmentValue */
         $event->createdAt = \DateTimeImmutable::createFromFormat(
             self::CREATED_FORMAT,
             $data['createdAt'],
-            new \DateTimeZone('UTC')
+            new \DateTimeZone('UTC'),
         );
         $event->version = $data['version'];
 
@@ -80,7 +78,10 @@ class BaseEvent implements ArraySerializable
         $event = new static($aggregateId, $payload, $metadata);
         $event->id = EventId::generate();
         $event->version = 1;
-        /** @noinspection PhpUnhandledExceptionInspection */
+        /**
+         * @noinspection PhpUnhandledExceptionInspection
+         * @psalm-suppress ImpureMethodCall
+         */
         $event->createdAt = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
         return $event;
@@ -101,17 +102,13 @@ class BaseEvent implements ArraySerializable
         return $this->id;
     }
 
-    /**
-     * @return array<string, scalar|array|null>
-     */
+    /** @return array<string, scalar|array|null> */
     public function getMetadata(): array
     {
         return $this->metadata;
     }
 
-    /**
-     * @return array<string, scalar|array|null>
-     */
+    /** @return array<string, scalar|array|null> */
     public function getPayload(): array
     {
         return $this->payload;
@@ -144,9 +141,7 @@ class BaseEvent implements ArraySerializable
         ];
     }
 
-    /**
-     * @psalm-param scalar|null $value
-     */
+    /** @psalm-param scalar|null $value */
     public function withMetadata(string $key, mixed $value): static
     {
         $event = clone $this;

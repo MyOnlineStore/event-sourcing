@@ -7,13 +7,11 @@ use MyOnlineStore\EventSourcing\Exception\AssertionFailed;
 use MyOnlineStore\EventSourcing\Service\Assert;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 final class EventId
 {
     private function __construct(
-        private string $id
+        private string $id,
     ) {
     }
 
@@ -29,9 +27,7 @@ final class EventId
         return new self($id);
     }
 
-    /**
-     * @psalm-pure
-     */
+    /** @psalm-pure */
     public static function generate(): self
     {
         /**

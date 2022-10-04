@@ -10,29 +10,14 @@ use MyOnlineStore\EventSourcing\Event\Stream;
 
 final class EventAggregateRepository implements AggregateRepository
 {
-    private AggregateFactory $aggregateFactory;
-    private EventRepository $eventRepository;
-    private MetadataRepository $metadataRepository;
-    private string $streamName;
-
-    /** @var class-string<AggregateRoot> $aggregateName */
-    private string $aggregateName;
-
-    /**
-     * @param class-string<AggregateRoot> $aggregateName
-     */
+    /** @param class-string<AggregateRoot> $aggregateName */
     public function __construct(
-        AggregateFactory $aggregateFactory,
-        EventRepository $eventRepository,
-        MetadataRepository $metadataRepository,
-        string $aggregateName,
-        string $streamName
+        private AggregateFactory $aggregateFactory,
+        private EventRepository $eventRepository,
+        private MetadataRepository $metadataRepository,
+        private string $aggregateName,
+        private string $streamName,
     ) {
-        $this->aggregateFactory = $aggregateFactory;
-        $this->eventRepository = $eventRepository;
-        $this->metadataRepository = $metadataRepository;
-        $this->aggregateName = $aggregateName;
-        $this->streamName = $streamName;
     }
 
     public function save(AggregateRoot $aggregateRoot): void
@@ -44,8 +29,8 @@ final class EventAggregateRepository implements AggregateRepository
             $aggregateRootId,
             new Stream(
                 $aggregateRoot->popRecordedEvents(),
-                $this->metadataRepository->load($this->streamName, $aggregateRootId)
-            )
+                $this->metadataRepository->load($this->streamName, $aggregateRootId),
+            ),
         );
     }
 
@@ -57,8 +42,8 @@ final class EventAggregateRepository implements AggregateRepository
             $this->eventRepository->load(
                 $this->streamName,
                 $aggregateRootId,
-                $this->metadataRepository->load($this->streamName, $aggregateRootId)
-            )
+                $this->metadataRepository->load($this->streamName, $aggregateRootId),
+            ),
         );
     }
 }

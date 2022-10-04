@@ -10,13 +10,10 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 
 final class DispatchingEventRepository implements EventRepository
 {
-    private EventDispatcherInterface $dispatcher;
-    private EventRepository $innerRepository;
-
-    public function __construct(EventDispatcherInterface $dispatcher, EventRepository $innerRepository)
-    {
-        $this->dispatcher = $dispatcher;
-        $this->innerRepository = $innerRepository;
+    public function __construct(
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly EventRepository $innerRepository,
+    ) {
     }
 
     public function appendTo(string $streamName, AggregateRootId $aggregateRootId, Stream $eventStream): void
@@ -37,7 +34,7 @@ final class DispatchingEventRepository implements EventRepository
         string $streamName,
         AggregateRootId $aggregateRootId,
         int $aggregateVersion,
-        StreamMetadata $metadata
+        StreamMetadata $metadata,
     ): Stream {
         return $this->innerRepository->loadAfterVersion($streamName, $aggregateRootId, $aggregateVersion, $metadata);
     }

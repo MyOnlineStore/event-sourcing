@@ -18,7 +18,7 @@ final class DBALSnapshotRepositoryTest extends TestCase
     protected function setUp(): void
     {
         $this->repository = new DBALSnapshotRepository(
-            $this->connection = $this->createMock(Connection::class)
+            $this->connection = $this->createMock(Connection::class),
         );
     }
 
@@ -35,12 +35,12 @@ final class DBALSnapshotRepositoryTest extends TestCase
                 [
                     'version' => 12,
                     'state' => 'aggregate_state',
-                ]
+                ],
             );
 
         self::assertEquals(
             new Snapshot($aggregateRootId, 12, 'aggregate_state'),
-            $this->repository->load($streamName, $aggregateRootId)
+            $this->repository->load($streamName, $aggregateRootId),
         );
     }
 
@@ -76,7 +76,7 @@ final class DBALSnapshotRepositoryTest extends TestCase
                     'aggregate_id' => 'agg-id',
                     'version' => 12,
                     'state' => 'aggregate_state',
-                ]
+                ],
             );
 
         $this->repository->save($streamName, new Snapshot($aggregateRootId, 12, 'aggregate_state'));

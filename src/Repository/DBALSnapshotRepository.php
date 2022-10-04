@@ -11,11 +11,8 @@ use MyOnlineStore\EventSourcing\Exception\SnapshotNotFound;
 
 final class DBALSnapshotRepository implements SnapshotRepository
 {
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
@@ -27,7 +24,7 @@ final class DBALSnapshotRepository implements SnapshotRepository
         $result = $this->connection->fetchAssociative(
             'SELECT version, state FROM ' . $streamName . '_snapshot WHERE aggregate_id = ?',
             [(string) $aggregateRootId],
-            ['string']
+            ['string'],
         );
 
         if (!$result) {
@@ -37,9 +34,7 @@ final class DBALSnapshotRepository implements SnapshotRepository
         return new Snapshot($aggregateRootId, (int) $result['version'], (string) $result['state']);
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     public function save(string $streamName, Snapshot $snapshot): void
     {
         $this->connection->executeStatement(
@@ -55,7 +50,7 @@ final class DBALSnapshotRepository implements SnapshotRepository
                 'aggregate_id' => 'string',
                 'version' => 'integer',
                 'state' => 'string',
-            ]
+            ],
         );
     }
 }

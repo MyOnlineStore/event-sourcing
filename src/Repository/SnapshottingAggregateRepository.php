@@ -9,19 +9,25 @@ use MyOnlineStore\EventSourcing\Aggregate\SnapshottingAggregateFactory;
 use MyOnlineStore\EventSourcing\Aggregate\SnapshottingAggregateRoot;
 use MyOnlineStore\EventSourcing\Exception\SnapshotNotFound;
 
+/**
+ * @template T of SnapshottingAggregateRoot
+ * @implements AggregateRepository<T>
+ */
 final class SnapshottingAggregateRepository implements AggregateRepository
 {
     /**
-     * @param class-string<SnapshottingAggregateRoot> $aggregateName
+     * @param AggregateRepository<T>          $innerRepository
+     * @param class-string<T>                 $aggregateName
+     * @param SnapshottingAggregateFactory<T> $aggregateFactory
      */
     public function __construct(
-        private AggregateRepository $innerRepository,
-        private EventRepository $eventRepository,
-        private MetadataRepository $metadataRepository,
-        private SnapshotRepository $snapshotRepository,
-        private SnapshottingAggregateFactory $aggregateFactory,
-        private string $aggregateName,
-        private string $streamName
+        private readonly AggregateRepository $innerRepository,
+        private readonly EventRepository $eventRepository,
+        private readonly MetadataRepository $metadataRepository,
+        private readonly SnapshotRepository $snapshotRepository,
+        private readonly SnapshottingAggregateFactory $aggregateFactory,
+        private readonly string $aggregateName,
+        private readonly string $streamName,
     ) {
     }
 
@@ -37,8 +43,8 @@ final class SnapshottingAggregateRepository implements AggregateRepository
                     $this->streamName,
                     $aggregateRootId,
                     $snapshot->getAggregateVersion(),
-                    $this->metadataRepository->load($this->streamName, $aggregateRootId)
-                )
+                    $this->metadataRepository->load($this->streamName, $aggregateRootId),
+                ),
             );
         } catch (SnapshotNotFound | \TypeError) {
         }
@@ -50,6 +56,7 @@ final class SnapshottingAggregateRepository implements AggregateRepository
     {
         $this->innerRepository->save($aggregateRoot);
 
+        /** @psalm-suppress DocblockTypeContradiction */
         if (!$aggregateRoot instanceof SnapshottingAggregateRoot) {
             return;
         }

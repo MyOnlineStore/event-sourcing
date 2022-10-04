@@ -8,9 +8,7 @@ use Defuse\Crypto\Key;
 
 final class DefuseKeyGenerator implements KeyGenerator
 {
-    /**
-     * @throws EnvironmentIsBrokenException
-     */
+    /** @throws EnvironmentIsBrokenException */
     public function generate(): string
     {
         return Key::createNewRandomKey()->saveToAsciiSafeString();

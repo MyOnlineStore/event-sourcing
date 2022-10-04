@@ -35,7 +35,7 @@ final class ArraySerializableEventConverterTest extends TestCase
 
         self::assertInstanceOf(
             BaseEvent::class,
-            $this->converter->createFromArray(BaseEvent::class, $data, $this->streamMetadata)
+            $this->converter->createFromArray(BaseEvent::class, $data, $this->streamMetadata),
         );
     }
 
@@ -61,7 +61,7 @@ final class ArraySerializableEventConverterTest extends TestCase
                     'other' => 123,
                     'payload' => ['foo' => 'bar'],
                     'metadata' => ['baz' => 'qux'],
-                ]
+                ],
             );
 
         self::assertSame($data, $this->converter->convertToArray($event, $this->streamMetadata));
